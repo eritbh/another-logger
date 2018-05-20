@@ -27,8 +27,8 @@ log.error('shitshitshit')
 ![Example screenshot 1](screenshots/example-1.png)
 
 ```js
-const Logger = require('./')
-const log = new Logger({
+const Logger = require('another-logger')
+const log = new Logger('myapp', {
 	timestamp: true,
 	minLevel: 0,
 	levels: {
@@ -52,31 +52,34 @@ log.custom('woah dude')
 
 The default log levels loaded in without any configuration. These will remain if you pass custom levels in to the constructor, unless you override them.
 
-### `const log = new Logger({timestamp, minLevel, levels})`
+### `const log = new Logger([[label, ]config])`
 
 Create a new logger instance.
 
+`config` is an object with the following properties:
+
 - `timestamp` - True or false. If true, a timestamp is included in front of all output.
 - `minLevel` - The minimum numeric level to output. Any output from a level less than this will be omitted. Defaults to `1`, which includes everything except `debug` in the default levels.
+- `maxLevel` - The maximum numeric level to output. Defaults to `Infinity`, i.e. there is no maximum.
 - `levels` - An object of additional levels to add to the logger. For example:
+- `label` - A label to print along with all output. Note that this can also be specified as a first argument in the constructor; if both are specified, the object property takes precedence.
 
-	```js
-	new Logger({
-		levels: {
-			levelName: {
-				level: 2,
-				text: 'custom text',
-				style: require('chalk').magenta
-			}
-		}
-	})
-	```
+```js
+const myLogger = new Logger('global', {
+  timestamp: true,
+  levels: {
+    messedItUp: {level: 2, text: 'problem:'}
+  }
+})
+```
 
-	In this example, the key `levelName` represents the name the level can be called by (e.g. in this case, `log.levelName()`). The properties are as follows: `level` is the numeric level number (for use with `minLevel` constructor option), `text` is the optional text to display in the console (defaults to the level's name), and `style` is an optional function that the text is run through before being rendered on the console.
+### `log.<name>(content...)` or `log._log(name, content...)`
 
-### `log.<level name>(content...)`
+Execute a log. `name` can be any level name - one of the defaults of `debug`, `info`, `success`, `warn`, or `error`, or a custom one provided in the constructor. Content arguments are processed via `require('util').format()` which means it works in the same way as `console.log` in regards to format strings, object previewing, etc.
 
-Execute a log. `<level name>` can be any level name - one of the defaults of `debug`, `info`, `success`, `warn`, or `error`, or a custom one provided in the constructor. Multiple arguments can be passed in for content, and if non-strings are passed, they will be inspected via `require('util').inspect` before being printed.
+```js
+myLogger.messedItUp('some error info') //=> 15:47:13 global problem: some error info
+```
 
 Better documentation coming soon hopefully.
 
