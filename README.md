@@ -32,7 +32,7 @@ const log = new Logger('myapp', {
 	timestamp: true,
 	minLevel: 0,
 	levels: {
-		custom: {level: 2, text: 'look at me', style: require('chalk').underline.bold.magenta}
+		custom: {level: 2, text: 'look at me', style: 'underline.bold.magenta'}
 	}
 })
 
