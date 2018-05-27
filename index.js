@@ -12,7 +12,8 @@ const defaultLevels = {
 	info: {level: 1, style: 'blue'},
 	success: {level: 2, style: 'green'},
 	warn: {level: 3, text: 'warning', style: 'yellow'},
-	error: {level: 4, style: 'red'}
+	error: {level: 4, style: 'red'},
+	log: {level: 1, text: 'info', style: 'blue'}
 }
 
 function styleFrom (style) {
