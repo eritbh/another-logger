@@ -15,6 +15,18 @@ const defaultLevels = {
 	error: {level: 4, style: 'red'}
 }
 
+function styleFrom (style) {
+	// If this isn't a string, return it as it is
+	if (typeof style !== 'string') {
+		return style
+	}
+	const parts = style.split(/[. ]/g)
+	style = chalk
+	for (let part of parts) {
+		style = style[part]
+	}
+}
+
 /**
  * The main logger class.
  */
@@ -79,7 +91,7 @@ class Logger {
 		/**
 		 * @prop {function} labelStyle A style function to add to the label.
 		 */
-		this.labelStyle = labelStyle
+		this.labelStyle = styleFrom(labelStyle)
 
 		// Dynamically create functions for each of the levels.
 		Object.keys(this.levels).forEach(name => {
@@ -126,14 +138,7 @@ class Logger {
 		let {text, style, level} = this.levels[name]
 		if (level < this.minLevel || level > this.maxLevel) return
 		name = text || name
-		style = style || (s => s)
-		if (typeof style === 'string') { // If the style is a string, process it as a list of chalk styles
-			const parts = style.split(/[. ]/g)
-			style = chalk
-			for (let part of parts) {
-				style = style[part]
-			}
-		}
+		style = styleFrom(style) || (s => s)
 		const timestamp = this.timestamp ? this._getTimestamp() : ''
 		name = style(name)
 		console.log(normalize`${timestamp} ${this.formattedLabel} ${name} ${util.format(...contents)}`)
@@ -142,3 +147,4 @@ class Logger {
 
 module.exports = Logger
 module.exports.defaultLevels = defaultLevels
+module.exports.styleFrom = styleFrom
