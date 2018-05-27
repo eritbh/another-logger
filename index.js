@@ -8,11 +8,11 @@ function normalize (_, ...subs) {
 }
 
 const defaultLevels = {
-	debug: {level: 0, style: chalk.cyan},
-	info: {level: 1, style: chalk.blue},
-	success: {level: 2, style: chalk.green},
-	warn: {level: 3, text: 'warning', style: chalk.yellow},
-	error: {level: 4, style: chalk.red}
+	debug: {level: 0, style: 'cyan'},
+	info: {level: 1, style: 'blue'},
+	success: {level: 2, style: 'green'},
+	warn: {level: 3, text: 'warning', style: 'yellow'},
+	error: {level: 4, style: 'red'}
 }
 
 /**
@@ -127,6 +127,13 @@ class Logger {
 		if (level < this.minLevel || level > this.maxLevel) return
 		name = text || name
 		style = style || (s => s)
+		if (typeof style === 'string') { // If the style is a string, process it as a list of chalk styles
+			const parts = style.split(/[. ]/g)
+			style = chalk
+			for (let part of parts) {
+				style = style[part]
+			}
+		}
 		const timestamp = this.timestamp ? this._getTimestamp() : ''
 		name = style(name)
 		console.log(normalize`${timestamp} ${this.formattedLabel} ${name} ${util.format(...contents)}`)
