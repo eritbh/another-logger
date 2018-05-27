@@ -25,6 +25,7 @@ function styleFrom (style) {
 	for (let part of parts) {
 		style = style[part]
 	}
+	return style
 }
 
 /**

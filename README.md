@@ -63,12 +63,13 @@ Create a new logger instance.
 - `maxLevel` - The maximum numeric level to output. Defaults to `Infinity`, i.e. there is no maximum.
 - `levels` - An object of additional levels to add to the logger. For example:
 - `label` - A label to print along with all output. Note that this can also be specified as a first argument in the constructor; if both are specified, the object property takes precedence.
+- `labelStyle` - A style (a terminal style name as supported by chalk, or an arbitrary function) to apply to the label in the output.
 
 ```js
 const myLogger = new Logger('global', {
   timestamp: true,
   levels: {
-    messedItUp: {level: 2, text: 'problem:'}
+    messedItUp: {level: 2, text: 'problem:', style: 'magenta'}
   }
 })
 ```
