@@ -45,6 +45,10 @@ class Logger {
 	 * addition to the default ones.
 	 * @param {string} [options.label] - Same as the `label` argument. If both are
 	 * defined, this one takes precedence.
+	 * @param {function|string} [options.labelStyle] - A style to apply to the
+	 * label. If this is a string, it corresponds to a name supported by `chalk`.
+	 * If it is a function, the result of passing the label through the function
+	 * is displayed in logs.
 	 */
 	constructor (_label, config = {}) {
 		// new Logger('yes', {}) = new Logger({label: 'yes'})
