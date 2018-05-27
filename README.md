@@ -52,6 +52,10 @@ log.custom('woah dude')
 
 The default log levels loaded in without any configuration. These will remain if you pass custom levels in to the constructor, unless you override them.
 
+### `Logger.styleFrom([style])`
+
+Takes a style as input. If the style is anything but a string, returns the input. If it *is* a string, returns the chalk style function of the same name. A string can include multiple style names by separating them with dots or spaces; that is, `styleFrom('green.bgBlue') === require('chalk').green.bgBlue`.
+
 ### `const log = new Logger([[label, ]config])`
 
 Create a new logger instance.
