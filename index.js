@@ -2,6 +2,16 @@
 
 const util = require('util')
 const chalk = require('chalk')
+const path = require('path')
+
+// Attempt to read config from process.cwd
+let baseConfig
+try {
+	const configPath = path.join(process.cwd(), 'logger.config')
+	baseConfig = require(configPath)
+} catch (_) {
+	baseConfig = {}
+}
 
 function normalize (_, ...subs) {
 	return subs.filter(s => s).join(' ')
@@ -58,6 +68,10 @@ class Logger {
 			config = _label || {}
 			_label = undefined
 		}
+
+		// Add config to base if we have a base
+		config = Object.assign(baseConfig, config)
+
 		const {
 			timestamp = false,
 			minLevel = 1,
@@ -85,7 +99,7 @@ class Logger {
 		/**
 		 * @prop {object} levels All levels in use in this logger.
 		 */
-		this.levels = Object.assign(levels, defaultLevels)
+		this.levels = Object.assign(defaultLevels, levels)
 
 		/**
 		 * @prop {string} label A label to print with each log line.
