@@ -69,15 +69,15 @@ class Logger {
 			_label = undefined
 		}
 
-		// Add config to base if we have a base
-		config = Object.assign(baseConfig, config)
+		// Add config to base if we have a base and apply label to config
+		config = Object.assign(baseConfig, config, {label: _label})
 
 		const {
 			timestamp = false,
 			minLevel = 1,
 			maxLevel = Infinity,
 			levels = {},
-			label = _label,
+			label = '',
 			labelStyle = chalk.gray.bold
 		} = config
 
