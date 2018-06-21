@@ -69,6 +69,8 @@ Create a new logger instance.
 - `label` - A label to print along with all output. Note that this can also be specified as a first argument in the constructor; if both are specified, the object property takes precedence.
 - `labelStyle` - A style (a terminal style name as supported by chalk, or an arbitrary function) to apply to the label in the output.
 
+Note that this config object can also be specified in a `logger.config.js(on)` file in the current working directory. If this file exists, all other config will be applied on top of it.
+
 ```js
 const myLogger = new Logger('global', {
   timestamp: true,
