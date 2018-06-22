@@ -65,7 +65,7 @@ Create a new logger instance.
 - `timestamp` - True or false. If true, a timestamp is included in front of all output.
 - `minLevel` - The minimum numeric level to output. Any output from a level less than this will be omitted. Defaults to `1`, which includes everything except `debug` in the default levels.
 - `maxLevel` - The maximum numeric level to output. Defaults to `Infinity`, i.e. there is no maximum.
-- `levels` - An object of additional levels to add to the logger. For example:
+- `levels` - An object of additional levels to add to the logger. Each key of the object is the name of a logger, and the value should be another object with possible keys `level`, `text`, and `style`.
 - `label` - A label to print along with all output. Note that this can also be specified as a first argument in the constructor; if both are specified, the positional argument takes precedence over the object property.
 - `labelStyle` - A style (a terminal style name as supported by chalk, or an arbitrary function) to apply to the label in the output.
 
