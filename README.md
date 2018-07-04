@@ -62,7 +62,7 @@ Create a new logger instance.
 
 `config` is an object with the following properties:
 
-- `timestamp` - True or false. If true, a timestamp is included in front of all output.
+- `timestamps` - True or false. If true, a timestamp is included in front of all output.
 - `levels` - An object of additional levels to add to the logger. Each key of the object is the name of a logger, and the value should be another object with possible keys `level`, `text`, and `style`.
 - `ignoredLevels` - An array of level names to ignore. These levels will not error, but won't write anything to the console when they're called, either. Useful for debug levels that shouldn't show anything in production.
 - `label` - A label to print along with all output. Note that this can also be specified as a first argument in the constructor; if both are specified, the positional argument takes precedence over the object property.

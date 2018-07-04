@@ -51,8 +51,8 @@ class Logger {
 	 * Create a new logger with given options.
 	 * @param {string} [label] - A label to print with each log line.
 	 * @param {object} [options = {}] - An object of options for the logger.
-	 * @param {boolean} [options.timestamp = false] - Whether or not log output
-	 * should contain a timestamp.
+	 * @param {boolean} [options.timestamps = false] - Whether or not log output
+	 * should contain timestamps.
 	 * @param {number} [options.minLevel = 1] - The minimum log level to be
 	 * displayed.
 	 * @param {number} [options.maxLevel = Infinity] - The maximum log level to be
@@ -79,7 +79,7 @@ class Logger {
 		config = Object.assign(baseConfig, config, {label: _label})
 
 		const {
-			timestamp = false,
+			timestamps = false,
 			levels = {},
 			ignoredLevels = [],
 			label = '',
@@ -87,9 +87,9 @@ class Logger {
 		} = config
 
 		/**
-		 * @prop {object} timestamp Whether or not log output should comtain a timestamp.
+		 * @prop {object} timestamps Whether or not log output should comtain timestamps.
 		 */
-		this.timestamp = timestamp
+		this.timestamps = timestamps
 
 		/**
 		 * @prop {object} levels All levels in use in this logger.
@@ -159,7 +159,7 @@ class Logger {
 		if (this.ignoredLevels.includes(name)) return
 		name = text || name
 		style = styleFrom(style) || (s => s)
-		const timestamp = this.timestamp ? this._getTimestamp() : ''
+		const timestamp = this.timestamps ? this._getTimestamp() : ''
 		name = style(name)
 		console.log(normalize`${timestamp} ${this.formattedLabel} ${name} ${util.format(...contents)}`)
 	}
