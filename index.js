@@ -18,12 +18,12 @@ function normalize (_, ...subs) {
 }
 
 const defaultLevels = {
-	debug: {level: 0, style: 'cyan'},
-	info: {level: 1, style: 'blue'},
-	success: {level: 2, style: 'green'},
-	warn: {level: 3, text: 'warning', style: 'yellow'},
-	error: {level: 4, style: 'red'},
-	log: {level: 1, text: 'info', style: 'blue'}
+	debug: {style: 'cyan'},
+	info: {style: 'blue'},
+	success: {style: 'green'},
+	warn: {text: 'warning', style: 'yellow'},
+	error: {style: 'red'},
+	log: {text: 'info', style: 'blue'}
 }
 
 function styleFrom (style) {
@@ -74,9 +74,8 @@ class Logger {
 
 		const {
 			timestamp = false,
-			minLevel = 1,
-			maxLevel = Infinity,
 			levels = {},
+			ignoredLevels = [],
 			label = '',
 			labelStyle = chalk.gray.bold
 		} = config
@@ -87,19 +86,14 @@ class Logger {
 		this.timestamp = timestamp
 
 		/**
-		 * @prop {integer} minLevel The minimum log level to be displayed.
-		 */
-		this.minLevel = minLevel
-
-		/**
-		 * @prop {integer} maxLevel The maximum log level to be displayed.
-		 */
-		this.maxLevel = maxLevel
-
-		/**
 		 * @prop {object} levels All levels in use in this logger.
 		 */
 		this.levels = Object.assign(defaultLevels, levels)
+
+		/**
+		 * @prop {string[]} ignoredLevels Levels which shouldn't be logged.
+		 */
+		this.ignoredLevels = ignoredLevels
 
 		/**
 		 * @prop {string} label A label to print with each log line.
@@ -156,7 +150,7 @@ class Logger {
 	 */
 	_log (name, ...contents) {
 		let {text, style, level} = this.levels[name]
-		if (level < this.minLevel || level > this.maxLevel) return
+		if (this.ignoredLevels.includes(name)) return
 		name = text || name
 		style = styleFrom(style) || (s => s)
 		const timestamp = this.timestamp ? this._getTimestamp() : ''
