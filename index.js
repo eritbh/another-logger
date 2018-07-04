@@ -26,12 +26,16 @@ const defaultLevels = {
 	log: {text: 'info', style: 'blue'}
 }
 
+/**
+ * Converts a string representation of a style to a styling function.
+ * @param {string} style The style representation to process
+ */
 function styleFrom (style) {
 	// If this isn't a string, return it as it is
 	if (typeof style !== 'string') {
 		return style
 	}
-	const parts = style.split(/[. ]/g)
+	const parts = style.split(/[. ]/g).filter(s => s)
 	style = chalk
 	for (let part of parts) {
 		style = style[part]
@@ -55,6 +59,8 @@ class Logger {
 	 * displayed.
 	 * @param {object} [options.levels = {}] - An object of levels to use in
 	 * addition to the default ones.
+	 * @param {string[]} [options.ignoredLevels = []] - An array of level names
+	 * which shouldn't be logged.
 	 * @param {string} [options.label] - Same as the `label` argument. If both are
 	 * defined, this one takes precedence.
 	 * @param {function|string} [options.labelStyle] - A style to apply to the
