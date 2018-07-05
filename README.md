@@ -61,8 +61,12 @@ Create a new logger instance.
 
 `config` is an object with the following properties:
 
+- `stream` - The default stream to write output to. Defaults to `process.stdout` just like `console.log()` does.
 - `timestamps` - True or false. If true, a timestamp is included in front of all output.
-- `levels` - An object of additional levels to add to the logger. Each key of the object is the name of a logger, and the value should be another object with possible keys `level`, `text`, and `style`.
+- `levels` - An object of additional levels to add to the logger. Each key of the object is the name of a logger, and the value should be another object with the following keys:
+	- `text` - Custom text to display for this level. If omitted, the name of the level is used (which is sufficient most of the time).
+	- `style` - The style to use for displaying this level's name. This can be a function or a string; if it's a string, it will be parsed as a space and/or period-separated list of chalk's named styles (red, gray, bgBlue, etc).
+	- `stream` - The stream this log should output to. Overrides the logger setting on a per-level basis.
 - `ignoredLevels` - An array of level names to ignore. These levels will not error, but won't write anything to the console when they're called, either. Useful for debug levels that shouldn't show anything in production.
 - `label` - A label to print along with all output. Note that this can also be specified as a first argument in the constructor; if both are specified, the positional argument takes precedence over the object property.
 - `labelStyle` - A style (a terminal style name as supported by chalk, or an arbitrary function) to apply to the label in the output.
