@@ -6,13 +6,14 @@ const path = require('path')
 
 // Default config options
 const defaultConfig = {
+	stream: process.stdout,
 	timestamps: false,
 	levels: {
 		debug: {style: 'cyan'},
 		info: {style: 'blue'},
 		success: {style: 'green'},
-		warn: {text: 'warning', style: 'yellow'},
-		error: {style: 'red'},
+		warn: {text: 'warning', style: 'yellow', stream: process.stderr},
+		error: {style: 'red', stream: process.stderr},
 		log: {text: 'info', style: 'blue'}
 	},
 	ignoredLevels: [],
@@ -30,10 +31,6 @@ try {
 }
 baseConfig = Object.assign({}, defaultConfig, baseConfig)
 baseConfig.levels = Object.assign({}, defaultConfig.levels, baseConfig.levels)
-
-function normalize (_, ...subs) {
-	return subs.filter(s => s).join(' ')
-}
 
 /**
  * Converts a string representation of a style to a styling function.
@@ -85,6 +82,12 @@ class Logger {
 
 		// Apply given label and configuration to base config
 		config = Object.assign(baseConfig, config, _label ? {label: _label} : {})
+
+		/**
+		 * @prop {WritableStream} [stream=process.stdout] The default stream to log
+		 * output to.
+		 */
+		this.stream = config.stream
 
 		/**
 		 * @prop {object} timestamps Whether or not log output should comtain timestamps.
@@ -153,13 +156,19 @@ class Logger {
 	 * @param {...*} contents - The contents of the log.
 	 */
 	_log (name, ...contents) {
-		let {text, style} = this.levels[name]
+		let {text, style, stream} = this.levels[name]
 		if (this.ignoredLevels.includes(name)) return
 		name = text || name
 		style = styleFrom(style)
+		stream = stream || this.stream
 		const timestamp = this.timestamps ? this._getTimestamp() : ''
 		name = style(name)
-		console.log(normalize`${timestamp} ${this.formattedLabel} ${name} ${util.format(...contents)}`)
+		stream.write(`${[
+			timestamp,
+			this.formattedLabel,
+			name,
+			util.format(...contents)
+		].filter(s => s).join(' ')}\n`)
 	}
 }
 
