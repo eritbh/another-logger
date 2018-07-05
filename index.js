@@ -120,6 +120,7 @@ class Logger {
 		Object.keys(this.levels).forEach(name => {
 			if (this[name]) throw new TypeError('Invalid level name', name)
 			this[name] = this._log.bind(this, name)
+			this[name].trace = this._trace.bind(this, name)
 		})
 	}
 
@@ -152,7 +153,7 @@ class Logger {
 
 	/**
 	 * Execute a log with a given name.
-	 * @param {name} name - The name of the logger to execute.
+	 * @param {string} name - The name of the level to execute.
 	 * @param {...*} contents - The contents of the log.
 	 */
 	_log (name, ...contents) {
@@ -170,13 +171,22 @@ class Logger {
 			util.format(...contents)
 		].filter(s => s).join(' ')}\n`)
 	}
+
+	/**
+	 * Execute a log with a given name, including a traceback.
+	 * @param {string} name - The name of the level to execute.
+	 * @param {...*} contents - The contents of the log.
+	 */
+	_trace (name, ...contents) {
+	const traceback = new Error().stack.replace(/.*\n.*/, '')
+		return this._log(name, ...contents, traceback)
+	}
 }
 
 const defaultInstance = new Logger()
 function createLogger (...args) {
 	return new Logger(...args)
 }
-
 module.exports = Object.assign(createLogger, defaultInstance)
 module.exports.defaultConfig = defaultConfig
 module.exports.styleFrom = styleFrom

@@ -90,6 +90,16 @@ Execute a log. `name` can be any level name - one of the defaults of `debug`, `i
 myLogger.messedItUp('some error info') //=> 15:47:13 global problem: some error info
 ```
 
+### `log.<name>.trace(content...)` or `log._trace(name, content...)`
+
+The same as the normal log, but appends a stack trace to the log output. Essentially the same as `console.trace()`.
+
+```js
+myLogger.debug.trace('this is where the code happened')
+//=> 15:47:13 global debug this is where the code happened
+//       at
+```
+
 Better documentation coming soon hopefully.
 
 ## License
