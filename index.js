@@ -163,6 +163,11 @@ class Logger {
 	}
 }
 
-module.exports = Logger
+const defaultInstance = new Logger()
+function createLogger (...args) {
+	return new Logger(...args)
+}
+
+module.exports = Object.assign(createLogger, defaultInstance)
 module.exports.defaultConfig = defaultConfig
 module.exports.styleFrom = styleFrom
