@@ -33,7 +33,7 @@ baseConfig.levels = Object.assign({}, defaultConfig.levels, baseConfig.levels)
 
 function normalize (_, ...subs) {
 	return subs.filter(s => s).join(' ')
-}	
+}
 
 /**
  * Converts a string representation of a style to a styling function.

@@ -14,8 +14,7 @@ npm install another-logger
 ## Usage
 
 ```js
-const Logger = require('another-logger')
-const log = new Logger()
+const log = require('another-logger')
 
 log.debug('test 123 foobar')
 log.info('huh, neat')
@@ -30,10 +29,10 @@ log.error('shitshitshit')
 const Logger = require('another-logger')
 const log = new Logger('myapp', {
 	timestamp: true,
-	minLevel: 0,
 	levels: {
 		custom: {text: 'look at me', style: 'underline.bold.magenta'}
-	}
+	},
+	ignoredLevels: ['debug']
 })
 
 log.debug('test 123 foobar')
