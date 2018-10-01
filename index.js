@@ -1,8 +1,8 @@
-'use strict'
+'use strict';
 
-const util = require('util')
-const chalk = require('chalk')
-const path = require('path')
+const util = require('util');
+const chalk = require('chalk');
+const path = require('path');
 
 // Default config options
 const defaultConfig = {
@@ -19,37 +19,38 @@ const defaultConfig = {
 	ignoredLevels: [],
 	label: '',
 	labelStyle: null
-}
+};
 
 // Attempt to read config from process.cwd
-let baseConfig
+let baseConfig;
 try {
-	const configPath = path.join(process.cwd(), 'logger.config')
-	baseConfig = require(configPath)
+	const configPath = path.join(process.cwd(), 'logger.config');
+	// eslint-disable-next-line global-require
+	baseConfig = require(configPath);
 } catch (_) {
-	baseConfig = {}
+	baseConfig = {};
 }
-baseConfig = Object.assign({}, defaultConfig, baseConfig)
-baseConfig.levels = Object.assign({}, defaultConfig.levels, baseConfig.levels)
+baseConfig = Object.assign({}, defaultConfig, baseConfig);
+baseConfig.levels = Object.assign({}, defaultConfig.levels, baseConfig.levels);
 
 /**
  * Converts a string representation of a style to a styling function.
- * @param {string} style The style representation to process
+ * @param {string|Function} style The style representation to process
+ * @returns {Function} The style function
  */
 function styleFrom (style) {
 	// If this isn't a string, return it as it is
 	if (typeof style === 'function') {
-		return style
+		return style;
 	} else if (typeof style === 'string') {
-		const parts = style.split(/[. ]/g).filter(s => s)
-		style = chalk
-		for (let part of parts) {
-			style = style[part]
+		const parts = style.split(/[. ]/g).filter(s => s);
+		style = chalk;
+		for (const part of parts) {
+			style = style[part];
 		}
-		return style
-	} else {
-		return s => s
+		return style;
 	}
+	return s => s;
 }
 
 /**
@@ -58,17 +59,17 @@ function styleFrom (style) {
 class Logger {
 	/**
 	 * Create a new logger with given options.
-	 * @param {string} [label] - A label to print with each log line.
-	 * @param {object} [options = {}] - An object of options for the logger.
-	 * @param {boolean} [options.timestamps = false] - Whether or not log output
+	 * @param {string} [_label] - A label to print with each log line.
+	 * @param {object} [config = {}] - An object of options for the logger.
+	 * @param {boolean} [config.timestamps = false] - Whether or not log output
 	 * should contain timestamps.
-	 * @param {object} [options.levels = {}] - An object of levels to use in
+	 * @param {object} [config.levels = {}] - An object of levels to use in
 	 * addition to the default ones.
-	 * @param {string[]} [options.ignoredLevels = []] - An array of level names
+	 * @param {string[]} [config.ignoredLevels = []] - An array of level names
 	 * which shouldn't be logged.
-	 * @param {string} [options.label] - Same as the `label` argument. If both are
+	 * @param {string} [config.label] - Same as the `label` argument. If both are
 	 * defined, the other argument takes precedence.
-	 * @param {function|string} [options.labelStyle] - A style to apply to the
+	 * @param {function|string} [config.labelStyle] - A style to apply to the
 	 * label. If this is a string, it corresponds to a name supported by `chalk`.
 	 * If it is a function, the result of passing the label through the function
 	 * is displayed in logs.
@@ -76,79 +77,82 @@ class Logger {
 	constructor (_label, config = {}) {
 		// new Logger('yes', {}) = new Logger({label: 'yes'})
 		if (typeof _label !== 'string') {
-			config = _label || {}
-			_label = undefined
+			config = _label || {};
+			_label = undefined;
 		}
 
 		// Apply given label and configuration to base config
-		config = Object.assign(baseConfig, config, _label ? {label: _label} : {})
+		config = Object.assign(baseConfig, config, _label ? {label: _label} : {});
 
 		/**
 		 * @prop {WritableStream} [stream=process.stdout] The default stream to log
 		 * output to.
 		 */
-		this.stream = config.stream
+		this.stream = config.stream;
 
 		/**
 		 * @prop {object} timestamps Whether or not log output should comtain timestamps.
 		 */
-		this.timestamps = config.timestamps
+		this.timestamps = config.timestamps;
 
 		/**
 		 * @prop {object} levels All levels in use in this logger.
 		 */
-		this.levels = Object.assign({}, defaultConfig.levels, config.levels)
+		this.levels = Object.assign({}, defaultConfig.levels, config.levels);
 
 		/**
 		 * @prop {string[]} ignoredLevels Levels which shouldn't be logged.
 		 */
-		this.ignoredLevels = config.ignoredLevels
+		this.ignoredLevels = config.ignoredLevels;
 
 		/**
 		 * @prop {string} label A label to print with each log line.
 		 */
 		// In order to avoid generating formattedLabel twice, we set the private
 		// version (_label) here. The generation happens when labelStyle is set.
-		this._label = config.label
+		this._label = config.label;
 
 		/**
 		 * @prop {function} labelStyle A style function to add to the label.
 		 */
-		this.labelStyle = styleFrom(config.labelStyle)
+		this.labelStyle = styleFrom(config.labelStyle);
 
 		// Dynamically create functions for each of the levels.
 		Object.keys(this.levels).forEach(name => {
-			if (this[name]) throw new TypeError('Invalid level name', name)
-			this[name] = this._log.bind(this, name)
-			this[name].trace = this._trace.bind(this, name)
-		})
+			if (this[name]) throw new TypeError('Invalid level name', name);
+			this[name] = this._log.bind(this, name);
+			this[name].trace = this._trace.bind(this, name);
+		});
 	}
 
 	// formattedLabel is auto-generated whenever one of these properties updates
 	set label (label) {
-		this._label = label
-		this._formattedLabel = this.labelStyle(this.label || '')
+		this._label = label;
+		this._formattedLabel = this.labelStyle(this.label || '');
 	}
+
 	get label () {
-		return this._label
+		return this._label;
 	}
+
 	set labelStyle (labelStyle) {
-		this._labelStyle = labelStyle
-		this._formattedLabel = this.labelStyle(this.label || '')
+		this._labelStyle = labelStyle;
+		this._formattedLabel = this.labelStyle(this.label || '');
 	}
+
 	get labelStyle () {
-		return this._labelStyle
+		return this._labelStyle;
 	}
 
 	/**
 	 * @prop {string} formattedLabel The result of applying this.labelStyle to this.label. Cached for efficiency.
 	 */
 	get formattedLabel () {
-		return this._formattedLabel
+		return this._formattedLabel;
 	}
 
 	_getTimestamp () {
-		return chalk.gray(new Date().toISOString().replace(/.*T|\..*/g, ''))
+		return chalk.gray(new Date().toISOString().replace(/.*T|\..*/g, ''));
 	}
 
 	/**
@@ -157,19 +161,19 @@ class Logger {
 	 * @param {...*} contents - The contents of the log.
 	 */
 	_log (name, ...contents) {
-		let {text, style, stream} = this.levels[name]
-		if (this.ignoredLevels.includes(name)) return
-		name = text || name
-		style = styleFrom(style)
-		stream = stream || this.stream
-		const timestamp = this.timestamps ? this._getTimestamp() : ''
-		name = style(name)
+		let {text, style, stream} = this.levels[name];
+		if (this.ignoredLevels.includes(name)) return;
+		name = text || name;
+		style = styleFrom(style);
+		stream = stream || this.stream;
+		const timestamp = this.timestamps ? this._getTimestamp() : '';
+		name = style(name);
 		stream.write(`${[
 			timestamp,
 			this.formattedLabel,
 			name,
 			util.format(...contents)
-		].filter(s => s).join(' ')}\n`)
+		].filter(s => s).join(' ')}\n`);
 	}
 
 	/**
@@ -178,15 +182,15 @@ class Logger {
 	 * @param {...*} contents - The contents of the log.
 	 */
 	_trace (name, ...contents) {
-	const traceback = new Error().stack.replace(/.*\n.*/, '')
-		return this._log(name, ...contents, traceback)
+		const traceback = new Error().stack.replace(/.*\n.*/, '');
+		this._log(name, ...contents, traceback);
 	}
 }
 
-const defaultInstance = new Logger()
+const defaultInstance = new Logger();
 function createLogger (...args) {
-	return new Logger(...args)
+	return new Logger(...args);
 }
-module.exports = Object.assign(createLogger, defaultInstance)
-module.exports.defaultConfig = defaultConfig
-module.exports.styleFrom = styleFrom
+module.exports = Object.assign(createLogger, defaultInstance);
+module.exports.defaultConfig = defaultConfig;
+module.exports.styleFrom = styleFrom;
