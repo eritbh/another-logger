@@ -6,191 +6,118 @@ const path = require('path');
 
 // Default config options
 const defaultConfig = {
-	stream: process.stdout,
 	timestamps: false,
-	levels: {
-		debug: {style: 'cyan'},
-		info: {style: 'blue'},
-		success: {style: 'green'},
-		warn: {text: 'warning', style: 'yellow', stream: process.stderr},
-		error: {style: 'red', stream: process.stderr},
-		log: {text: 'info', style: 'blue'}
-	},
-	ignoredLevels: [],
-	label: '',
-	labelStyle: null
+	ignoredLevels: ['debug'],
+	label: ''
+};
+const defaultLevels = {
+	debug: {style: 'cyan'},
+	info: {style: 'blue'},
+	log: {text: 'info', style: 'blue'},
+	success: {style: 'green'},
+	warn: {text: 'warning', style: 'yellow'},
+	error: {style: 'red'}
 };
 
-// Attempt to read config from process.cwd
+// Attempt to read config from logger.config.js or logger.config.json in cwd
 let baseConfig;
+let baseLevels;
 try {
 	const configPath = path.join(process.cwd(), 'logger.config');
 	// eslint-disable-next-line global-require
-	baseConfig = require(configPath);
+	const fileContents = require(configPath); // require() inside try, so sue me
+	baseConfig = fileContents.config || fileContents || {};
+	baseLevels = fileContents.levels || {};
 } catch (_) {
 	baseConfig = {};
+	baseLevels = {};
 }
 baseConfig = Object.assign({}, defaultConfig, baseConfig);
-baseConfig.levels = Object.assign({}, defaultConfig.levels, baseConfig.levels);
+baseLevels = Object.assign({}, defaultLevels, baseLevels);
 
 /**
- * Converts a string representation of a style to a styling function.
- * @param {string|Function} style The style representation to process
- * @returns {Function} The style function
+ * Applies a terminal color style to a bit of text via `chalk`.
+ * @todo support chalk's fn calls, e.g. .rgb()
+ *
+ * @param {string} text The text to apply the style to
+ * @param {string} style The style string to apply, a space- or period-separated
+ * list of *named* (no custom rgb() calls, etc.) `chalk` styles (see the `chalk`
+ * package documentation for a list:
+ * {@link https://www.npmjs.com/package/chalk/v/2.4.1})
+ * @returns {string} The text with the style applied
  */
-function styleFrom (style) {
-	// If this isn't a string, return it as it is
-	if (typeof style === 'function') {
-		return style;
-	} else if (typeof style === 'string') {
-		const parts = style.split(/[. ]/g).filter(s => s);
-		style = chalk;
-		for (const part of parts) {
-			style = style[part];
-		}
-		return style;
+function style (text, style) {
+	const parts = style.split(/[. ]/g);
+	let stylefn = chalk;
+	while (parts.length) {
+		stylefn = stylefn[parts.shift()] || stylefn;
 	}
-	return s => s;
+	return stylefn(text);
 }
 
 /**
- * The main logger class.
+ * Generates a timestamp.
+ * @returns {string} The formatted timestamp
+ * @todo Support custom formats
  */
-class Logger {
-	/**
-	 * Create a new logger with given options.
-	 * @param {string} [_label] - A label to print with each log line.
-	 * @param {object} [config = {}] - An object of options for the logger.
-	 * @param {boolean} [config.timestamps = false] - Whether or not log output
-	 * should contain timestamps.
-	 * @param {object} [config.levels = {}] - An object of levels to use in
-	 * addition to the default ones.
-	 * @param {string[]} [config.ignoredLevels = []] - An array of level names
-	 * which shouldn't be logged.
-	 * @param {string} [config.label] - Same as the `label` argument. If both are
-	 * defined, the other argument takes precedence.
-	 * @param {function|string} [config.labelStyle] - A style to apply to the
-	 * label. If this is a string, it corresponds to a name supported by `chalk`.
-	 * If it is a function, the result of passing the label through the function
-	 * is displayed in logs.
-	 */
-	constructor (_label, config = {}) {
-		// new Logger('yes', {}) = new Logger({label: 'yes'})
-		if (typeof _label !== 'string') {
-			config = _label || {};
-			_label = undefined;
+function timestamp () {
+	return new Date().toISOString().replace(/.*T|\..*/g, '');
+}
+
+/**
+ * Returns a new logger object and stuff.
+ * @param {Object} config An object containing configuration options
+ * @param {string} config.label A string to prefix logs fron this logger with
+ * @param {boolean} config.timestamps Whether or not to include timestamps with
+ * messages
+ * @param {string[]} config.ignoredLevels A list of level names that should be
+ * excluded from the output
+ * @param {Object} levels An object containing levels to use for the logger.
+ * Keys of the object are level names as they're called from code, and each key
+ * should map to an object with options I can't document here because JSDoc is
+ * stupid and doesn't like custom object things
+ * @returns {Object} The logger object
+ */
+function NewLogger (config, levels) {
+	levels = Object.assign({}, baseLevels, levels);
+	const logger = {
+		_config: Object.assign({}, baseConfig, config),
+		_texts: {},
+		_log (level, ...contents) {
+			// If the log level is ignored, do nothing
+			if (this._config.ignoredLevels.includes(level)) return;
+			// Assemble all the parts of the message prefix
+			const time = this._config.timestamps ? timestamp() : '';
+			const label = this._config.label || '';
+			const prefix = [
+				time,
+				label,
+				this._texts[level]
+			].filter(s => s).join(' ');
+			// Format contents and write message
+			contents = util.format(...contents);
+			process.stdout.write(`${prefix} ${contents}\n`);
+		},
+		_trace (level, ...contents) {
+			// Check for ignored levels here too to avoid generating the
+			// stacktrace unless we need it
+			if (this._config.ignoredLevels.includes(level)) return;
+			const stacktrace = new Error().stack.replace(/.*\n.*/, '');
+			this._log(level, util.format(...contents) + stacktrace);
 		}
-
-		// Apply given label and configuration to base config
-		config = Object.assign(baseConfig, config, _label ? {label: _label} : {});
-
-		/**
-		 * @prop {WritableStream} [stream=process.stdout] The default stream to log
-		 * output to.
-		 */
-		this.stream = config.stream;
-
-		/**
-		 * @prop {object} timestamps Whether or not log output should comtain timestamps.
-		 */
-		this.timestamps = config.timestamps;
-
-		/**
-		 * @prop {object} levels All levels in use in this logger.
-		 */
-		this.levels = Object.assign({}, defaultConfig.levels, config.levels);
-
-		/**
-		 * @prop {string[]} ignoredLevels Levels which shouldn't be logged.
-		 */
-		this.ignoredLevels = config.ignoredLevels;
-
-		/**
-		 * @prop {string} label A label to print with each log line.
-		 */
-		// In order to avoid generating formattedLabel twice, we set the private
-		// version (_label) here. The generation happens when labelStyle is set.
-		this._label = config.label;
-
-		/**
-		 * @prop {function} labelStyle A style function to add to the label.
-		 */
-		this.labelStyle = styleFrom(config.labelStyle);
-
-		// Dynamically create functions for each of the levels.
-		Object.keys(this.levels).forEach(name => {
-			if (this[name]) throw new TypeError('Invalid level name', name);
-			this[name] = this._log.bind(this, name);
-			this[name].trace = this._trace.bind(this, name);
-		});
+	};
+	for (const level of Object.keys(levels)) {
+		// Bake in the level style for printing later
+		logger._texts[level] = style(levels[level].text || level, levels[level].style);
+		// Bind the log functions for this level
+		logger[level] = logger._log.bind(logger, level);
+		logger[level].trace = logger._trace.bind(logger, level);
 	}
-
-	// formattedLabel is auto-generated whenever one of these properties updates
-	set label (label) {
-		this._label = label;
-		this._formattedLabel = this.labelStyle(this.label || '');
-	}
-
-	get label () {
-		return this._label;
-	}
-
-	set labelStyle (labelStyle) {
-		this._labelStyle = labelStyle;
-		this._formattedLabel = this.labelStyle(this.label || '');
-	}
-
-	get labelStyle () {
-		return this._labelStyle;
-	}
-
-	/**
-	 * @prop {string} formattedLabel The result of applying this.labelStyle to this.label. Cached for efficiency.
-	 */
-	get formattedLabel () {
-		return this._formattedLabel;
-	}
-
-	_getTimestamp () {
-		return chalk.gray(new Date().toISOString().replace(/.*T|\..*/g, ''));
-	}
-
-	/**
-	 * Execute a log with a given name.
-	 * @param {string} name - The name of the level to execute.
-	 * @param {...*} contents - The contents of the log.
-	 */
-	_log (name, ...contents) {
-		let {text, style, stream} = this.levels[name];
-		if (this.ignoredLevels.includes(name)) return;
-		name = text || name;
-		style = styleFrom(style);
-		stream = stream || this.stream;
-		const timestamp = this.timestamps ? this._getTimestamp() : '';
-		name = style(name);
-		stream.write(`${[
-			timestamp,
-			this.formattedLabel,
-			name,
-			util.format(...contents)
-		].filter(s => s).join(' ')}\n`);
-	}
-
-	/**
-	 * Execute a log with a given name, including a traceback.
-	 * @param {string} name - The name of the level to execute.
-	 * @param {...*} contents - The contents of the log.
-	 */
-	_trace (name, ...contents) {
-		const traceback = new Error().stack.replace(/.*\n.*/, '');
-		this._log(name, ...contents, traceback);
-	}
+	return logger;
 }
 
-const defaultInstance = new Logger();
-function createLogger (...args) {
-	return new Logger(...args);
-}
-module.exports = Object.assign(createLogger, defaultInstance);
-module.exports.defaultConfig = defaultConfig;
-module.exports.styleFrom = styleFrom;
+module.exports = Object.assign(NewLogger, NewLogger(), {
+	_baseConfig: baseConfig,
+	_baseLevels: baseLevels,
+	_style: style
+});
