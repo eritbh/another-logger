@@ -79,6 +79,7 @@ function timestamp () {
  * @returns {Object} The logger object
  */
 function NewLogger (config, levels) {
+	levels = levels || config.levels || {};
 	levels = Object.assign({}, baseLevels, levels);
 	const logger = {
 		_config: Object.assign({}, baseConfig, config),
