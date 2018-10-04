@@ -79,11 +79,14 @@ function timestamp () {
  * @returns {Object} The logger object
  */
 function NewLogger (config, levels) {
-	levels = levels || config.levels || {};
+	// Compute the calculated levels/config options by applying the defaults
+	levels = levels || (config && config.levels) || {};
 	levels = Object.assign({}, baseLevels, levels);
+	config = Object.assign({}, baseConfig, config);
+	delete config.levels; // don't rely on this since it may not be passed in
+	// Construct the base logger object
 	const logger = {
 		_config: Object.assign({}, baseConfig, config),
-		_texts: {},
 		_log (level, ...contents) {
 			// If the log level is ignored, do nothing
 			if (this._config.ignoredLevels.includes(level)) return;
@@ -93,7 +96,7 @@ function NewLogger (config, levels) {
 			const prefix = [
 				time,
 				label,
-				this._texts[level]
+				this[level]._text
 			].filter(s => s).join(' ');
 			// Format contents and write message
 			contents = util.format(...contents);
@@ -107,12 +110,13 @@ function NewLogger (config, levels) {
 			this._log(level, util.format(...contents) + stacktrace);
 		}
 	};
+	// Add logging functions for each level
 	for (const level of Object.keys(levels)) {
-		// Bake in the level style for printing later
-		logger._texts[level] = style(levels[level].text || level, levels[level].style);
 		// Bind the log functions for this level
 		logger[level] = logger._log.bind(logger, level);
 		logger[level].trace = logger._trace.bind(logger, level);
+		// Bake in the styled text to save time later
+		logger[level]._text = style(levels[level].text || level, levels[level].style);
 	}
 	return logger;
 }
