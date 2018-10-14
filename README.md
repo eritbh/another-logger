@@ -87,7 +87,8 @@ const myLogger = new Logger('global', {
 Execute a log. `name` can be any level name - one of the defaults of `debug`, `info`, `success`, `warn`, or `error`, or a custom one provided in the constructor. Content arguments are processed via `require('util').format()` which means it works in the same way as `console.log` in regards to format strings, object previewing, etc.
 
 ```js
-myLogger.messedItUp('some error info') //=> 15:47:13 global problem: some error info
+myLogger.messedItUp('some error info')
+//=> 15:47:13 global problem: some error info
 ```
 
 ### `log.<name>.trace(content...)` or `log._trace(name, content...)`
@@ -97,7 +98,10 @@ The same as the normal log, but appends a stack trace to the log output. Essenti
 ```js
 myLogger.debug.trace('this is where the code happened')
 //=> 15:47:13 global debug this is where the code happened
-//       at
+//=>     at repl:1:10
+//=>     at Script.runInThisContext (vm.js:96:20)
+//=>     at REPLServer.defaultEval (repl.js:329:29)
+//=>     ...
 ```
 
 Better documentation coming soon hopefully.
