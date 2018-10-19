@@ -7,7 +7,7 @@ const path = require('path');
 // Default config options
 const defaultConfig = {
 	timestamps: false,
-	ignoredLevels: ['debug'],
+	ignoredLevels: [process.env.DEBUG ? null : 'debug'],
 	label: ''
 };
 const defaultLevels = {
