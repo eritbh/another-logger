@@ -82,7 +82,7 @@ const myLogger = new Logger('global', {
 })
 ```
 
-### `log.<name>(content...)` or `log._log(name, content...)`
+### `log.<name>(content...)`
 
 Execute a log. `name` can be any level name - one of the defaults of `debug`, `info`, `success`, `warn`, or `error`, or a custom one provided in the constructor. Content arguments are processed via `require('util').format()` which means it works in the same way as `console.log` in regards to format strings, object previewing, etc.
 
@@ -90,7 +90,7 @@ Execute a log. `name` can be any level name - one of the defaults of `debug`, `i
 myLogger.messedItUp('some error info') //=> 15:47:13 global problem: some error info
 ```
 
-### `log.<name>.trace(content...)` or `log._trace(name, content...)`
+### `log.<name>.trace(content...)`
 
 The same as the normal log, but appends a stack trace to the log output. Essentially the same as `console.trace()`.
 
