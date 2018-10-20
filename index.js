@@ -78,7 +78,7 @@ function timestamp () {
  * stupid and doesn't like custom object things
  * @returns {Object} The logger object
  */
-function NewLogger (config, levels) {
+function Logger (config, levels) {
 	// Compute the calculated levels/config options by applying the defaults
 	levels = levels || (config && config.levels) || {};
 	levels = Object.assign({}, baseLevels, levels);
@@ -121,7 +121,7 @@ function NewLogger (config, levels) {
 	return logger;
 }
 
-module.exports = Object.assign(NewLogger, NewLogger(), {
+module.exports = Object.assign(Logger, Logger(), {
 	_baseConfig: baseConfig,
 	_baseLevels: baseLevels,
 	_style: style
