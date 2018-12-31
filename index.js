@@ -8,7 +8,7 @@ const path = require('path');
 const defaultConfig = {
 	timestamps: false,
 	ignoredLevels: [process.env.DEBUG ? null : 'debug'],
-	label: ''
+	label: '',
 };
 const defaultLevels = {
 	debug: {style: 'cyan'},
@@ -16,7 +16,7 @@ const defaultLevels = {
 	log: {text: 'info', style: 'blue'},
 	success: {style: 'green'},
 	warn: {text: 'warning', style: 'yellow'},
-	error: {style: 'red'}
+	error: {style: 'red'},
 };
 
 // Attempt to read config from logger.config.js or logger.config.json in cwd
@@ -78,9 +78,9 @@ function timestamp () {
  * stupid and doesn't like custom object things
  * @returns {Object} The logger object
  */
-function Logger (config, levels) {
+function logger (config, levels) {
 	// Compute the calculated levels/config options by applying the defaults
-	levels = levels || (config && config.levels) || {};
+	levels = levels || config && config.levels || {};
 	levels = Object.assign({}, baseLevels, levels);
 	config = Object.assign({}, baseConfig, config);
 	delete config.levels; // don't rely on this since it may not be passed in
@@ -96,7 +96,7 @@ function Logger (config, levels) {
 			const prefix = [
 				time,
 				label,
-				this[level]._text
+				this[level]._text,
 			].filter(s => s).join(' ');
 			// Format contents and write message
 			contents = util.format(...contents);
@@ -110,19 +110,23 @@ function Logger (config, levels) {
 			this._log(level, util.format(...contents) + stacktrace);
 		},
 		_table (level, ...contents) {
-			// Construct a fake console object compatible with the Console constructor prototype
+			// HACK: This code calls the built-in console.table() function but
+			//     on a proxy that hijacks the output function and sends the
+			//     generated table to out logger.
 			const fakeConsole = new Proxy(console, {
 				get: (c, prop) => {
 					// Replace the log function with our custom log
 					if (prop === 'log') {
-						return (table) => this._log(level, table.indexOf('\n') === -1 ? table : `\n${table}`);
+						return table => this._log(level, table.indexOf('\n') === -1 ? table : `\n${table}`);
 					}
 					// Symbol properties used in the table function need to be passed through as-is
 					return c[prop];
-				}
+				},
 			});
+			// this is literally a console logging utility, chill out eslint
+			// eslint-disable-next-line no-console
 			console.constructor.prototype.table.apply(fakeConsole, contents);
-		}
+		},
 	};
 	// Add logging functions for each level
 	for (const level of Object.keys(levels)) {
@@ -136,8 +140,8 @@ function Logger (config, levels) {
 	return logger;
 }
 
-module.exports = Object.assign(Logger, Logger(), {
+module.exports = Object.assign(logger, logger(), {
 	_baseConfig: baseConfig,
 	_baseLevels: baseLevels,
-	_style: style
+	_style: style,
 });
