@@ -14,13 +14,13 @@ npm install another-logger
 ## Usage
 
 ```js
-const log = require('another-logger')
+const log = require('another-logger');
 
-log.debug('test 123 foobar')
-log.info('huh, neat')
-log.success('woo we did it')
-log.warn('that doesnt sound good')
-log.error('shitshitshit')
+log.debug('test 123 foobar');
+log.info('huh, neat');
+log.success('woo we did it');
+log.warn('that doesnt sound good');
+log.error('shitshitshit');
 ```
 
 ![Example screenshot 1](screenshots/example-1.png)
@@ -28,19 +28,19 @@ log.error('shitshitshit')
 ```js
 const Logger = require('another-logger')
 const log = new Logger('myapp', {
-	timestamp: true,
+	timestamps: true,
 	levels: {
 		custom: {text: 'look at me', style: 'underline.bold.magenta'}
 	},
 	ignoredLevels: ['debug']
-})
+});
 
-log.debug('test 123 foobar')
-log.info('huh, neat')
-log.success('woo we did it')
-log.warn('that doesnt sound good')
-log.error('shitshitshit')
-log.custom('woah dude')
+log.debug('test 123 foobar');
+log.info('huh, neat');
+log.success('woo we did it');
+log.warn('that doesnt sound good');
+log.error('shitshitshit');
+log.custom('woah dude');
 ```
 
 ![Example screenshot 2](screenshots/example-2.png)
