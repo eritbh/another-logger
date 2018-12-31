@@ -108,6 +108,20 @@ function Logger (config, levels) {
 			if (this._config.ignoredLevels.includes(level)) return;
 			const stacktrace = new Error().stack.replace(/.*\n.*/, '');
 			this._log(level, util.format(...contents) + stacktrace);
+		},
+		_table (level, ...contents) {
+			// Construct a fake console object compatible with the Console constructor prototype
+			const fakeConsole = new Proxy(console, {
+				get: (c, prop) => {
+					// Replace the log function with our custom log
+					if (prop === 'log') {
+						return (table) => this._log(level, table.indexOf('\n') === -1 ? table : `\n${table}`);
+					}
+					// Symbol properties used in the table function need to be passed through as-is
+					return c[prop];
+				}
+			});
+			console.constructor.prototype.table.apply(fakeConsole, contents);
 		}
 	};
 	// Add logging functions for each level
@@ -115,6 +129,7 @@ function Logger (config, levels) {
 		// Bind the log functions for this level
 		logger[level] = logger._log.bind(logger, level);
 		logger[level].trace = logger._trace.bind(logger, level);
+		logger[level].table = logger._table.bind(logger, level);
 		// Bake in the styled text to save time later
 		logger[level]._text = style(levels[level].text || level, levels[level].style);
 	}
