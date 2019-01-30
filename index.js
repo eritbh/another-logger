@@ -101,26 +101,35 @@ function createLogger (config, levels) {
 			].filter(s => s).join(' ');
 			// Format contents and write message
 			contents = util.format(...contents);
-			process.stdout.write(`${prefix} ${contents}\n`);
+			// eslint-disable-next-line no-console
+			console.log(`${prefix} ${contents}`);
 		},
 		_trace (level, ...contents) {
-			// Check for ignored levels here too to avoid generating the
-			// stacktrace unless we need it
 			if (this._config.ignoredLevels.includes(level)) return;
+			// Remove the first two lines, leaving a newline as the first char
 			const stacktrace = new Error().stack.replace(/.*\n.*/, '');
 			this._log(level, util.format(...contents) + stacktrace);
 		},
 		_table (level, ...contents) {
+			if (this._config.ignoredLevels.includes(level)) return;
 			// HACK: This code calls the built-in console.table() function but
-			//     on a proxy that hijacks the output function and sends the
-			//     generated table to our logger.
+			//       on a proxy that hijacks the output function and sends the
+			//       generated table to our logger.
 			const fakeConsole = new Proxy(console, {
 				get: (c, prop) => {
 					// Replace the log function with our custom log
 					if (prop === 'log') {
-						return table => this._log(level, table.indexOf('\n') === -1 ? table : `\n${table}`);
+						return tableString => {
+							// If the table is multiline, add a newline at the
+							// beginning to preserve alignment
+							if (tableString.indexOf('\n') !== -1) {
+								tableString = `\n${tableString}`;
+							}
+							this._log(level, tableString);
+						};
 					}
-					// Symbol properties used in the table function need to be passed through as-is
+					// Symbol properties used in the table function need to be
+					// passed through as-is
 					return c[prop];
 				},
 			});
