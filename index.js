@@ -40,14 +40,14 @@ baseLevels = Object.assign({}, defaultLevels, baseLevels);
  * @todo support chalk's fn calls, e.g. .rgb()
  *
  * @param {string} text The text to apply the style to
- * @param {string} style The style string to apply, a space- or period-separated
- * list of *named* (no custom rgb() calls, etc.) `chalk` styles (see the `chalk`
- * package documentation for a list:
+ * @param {string} styleString The style string to apply, a space- or
+ * period-separated list of *named* (no custom rgb() calls, etc.) `chalk` styles
+ * (see the `chalk` package documentation for a list:
  * {@link https://www.npmjs.com/package/chalk/v/2.4.1})
  * @returns {string} The text with the style applied
  */
-function style (text, style) {
-	const parts = style.split(/[. ]/g);
+function style (text, styleString) {
+	const parts = styleString.split(/[. ]/g);
 	let stylefn = chalk;
 	while (parts.length) {
 		stylefn = stylefn[parts.shift()] || stylefn;
@@ -78,12 +78,13 @@ function timestamp () {
  * stupid and doesn't like custom object things
  * @returns {Object} The logger object
  */
-function logger (config, levels) {
+function createLogger (config, levels) {
 	// Compute the calculated levels/config options by applying the defaults
 	levels = levels || config && config.levels || {};
 	levels = Object.assign({}, baseLevels, levels);
 	config = Object.assign({}, baseConfig, config);
 	delete config.levels; // don't rely on this since it may not be passed in
+
 	// Construct the base logger object
 	const logger = {
 		_config: Object.assign({}, baseConfig, config),
@@ -112,7 +113,7 @@ function logger (config, levels) {
 		_table (level, ...contents) {
 			// HACK: This code calls the built-in console.table() function but
 			//     on a proxy that hijacks the output function and sends the
-			//     generated table to out logger.
+			//     generated table to our logger.
 			const fakeConsole = new Proxy(console, {
 				get: (c, prop) => {
 					// Replace the log function with our custom log
@@ -128,6 +129,7 @@ function logger (config, levels) {
 			console.constructor.prototype.table.apply(fakeConsole, contents);
 		},
 	};
+
 	// Add logging functions for each level
 	for (const level of Object.keys(levels)) {
 		// Bind the log functions for this level
@@ -137,11 +139,9 @@ function logger (config, levels) {
 		// Bake in the styled text to save time later
 		logger[level]._text = style(levels[level].text || level, levels[level].style);
 	}
+
 	return logger;
 }
 
-module.exports = Object.assign(logger, logger(), {
-	_baseConfig: baseConfig,
-	_baseLevels: baseLevels,
-	_style: style,
-});
+// The default export can be used as a logger instance or a constructor
+module.exports = Object.assign(createLogger, createLogger());
