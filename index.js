@@ -1,8 +1,14 @@
 'use strict';
 
 const util = require('util');
-const chalk = require('chalk');
 const path = require('path');
+let chalk;
+try {
+	// eslint-disable-next-line global-require
+	chalk = require('chalk');
+} catch (_) {
+	// If there's no chalk, we just won't resolve named styles
+}
 
 // Default config options
 const defaultConfig = {
@@ -47,6 +53,7 @@ baseLevels = Object.assign({}, defaultLevels, baseLevels);
  * @returns {string} The text with the style applied
  */
 function style (text, styleString) {
+	if (!chalk) return text;
 	const parts = styleString.split(/[. ]/g);
 	let stylefn = chalk;
 	while (parts.length) {

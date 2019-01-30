@@ -8,8 +8,10 @@ Lightweight, level-based console wrapper intended for small projects and general
 # yarn
 yarn add another-logger
 # npm
-npm install another-logger
+npm install --save another-logger
 ```
+
+To install without installing [`chalk`](https://npmjs.com/package/chalk) (the package used for color support), add `--no-optional` to the end of either of these commands.
 
 ## Usage
 
@@ -23,7 +25,7 @@ log.warn('that doesnt sound good');
 log.error('shitshitshit');
 ```
 
-![Example screenshot 1](screenshots/example-1.png)
+<p align="center"><img alt="Example screenshot 1" src="screenshots/example-1.png"></p>
 
 ```js
 const Logger = require('another-logger')
@@ -43,7 +45,7 @@ log.error('shitshitshit');
 log.custom('woah dude');
 ```
 
-![Example screenshot 2](screenshots/example-2.png)
+<p align="center"><img alt="Example screenshot 2" src="screenshots/example-2.png"></p>
 
 ## Documentation
 
@@ -58,7 +60,7 @@ When requiring the module, you get two things in one: a default logger instance,
 
 	- `text` - Custom text to display for this level. If omitted, the name of the level is used (which is sufficient most of the time).
 
-	- `style` - The style to use for displaying this level's name. This can be a function or a string; if it's a string, it will be parsed as a space and/or period-separated list of chalk's named styles (red, gray, bgBlue, etc).
+	- `style` - The style to use for displaying this level's name. This can be a function or a string; if it's a string, it will be parsed as a space and/or period-separated list of [`chalk`](https://npmjs.com/package/chalk)'s named styles (red, gray, bgBlue, etc). See that package's README for a full list.
 
 	- `stream` - The stream this log should output to. Overrides the logger setting on a per-level basis.
 
