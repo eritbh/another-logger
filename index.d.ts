@@ -16,7 +16,7 @@ interface LoggingFunction {
     // log.info.trace()
     trace (...contents: any[]): void;
     // log.info.table()
-    table (...contents: any[]): void;
+    table (tabularData: any, properties?: string[]): void;
 }
 
 // Defines config parameters for new loggers.
