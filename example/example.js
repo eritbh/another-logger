@@ -3,7 +3,7 @@
 // The default logger object loads options from logger.config.js/json, so if you
 // define your options there, you can use it as a standalone object
 const log = require('..');
-log.debug('Debug message (ignored)');
+log.debug('Debug message (shown unless you set the PRODUCTION environment variable)');
 log.info('Info message (ignored)');
 log.warn('Warning message');
 log.error('Error message with', 'multiple arguments');
@@ -20,9 +20,11 @@ const log2 = require('..')({
 	label: 'Logger 2',
 	// We can also override the options in logger.config.js
 	timestamps: false,
-	ignoredLevels: [
-		'warn',
-	],
+	ignoredLevels: {
+		info: false,
+		debug: false,
+		warn: true,
+	},
 	levels: {
 		custom2: {text: 'Custom 2', style: 'green inverse'},
 	},

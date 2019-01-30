@@ -13,7 +13,6 @@ try {
 // Default config options
 const defaultConfig = {
 	timestamps: false,
-	ignoredLevels: [process.env.DEBUG ? null : 'debug'],
 	label: '',
 };
 const defaultLevels = {
@@ -31,7 +30,7 @@ let baseLevels;
 try {
 	const configPath = path.join(process.cwd(), 'logger.config');
 	// eslint-disable-next-line global-require
-	const fileContents = require(configPath); // require() inside try, so sue me
+	const fileContents = require(configPath);
 	baseConfig = fileContents.config || fileContents || {};
 	baseLevels = fileContents.levels || {};
 } catch (_) {
@@ -40,6 +39,14 @@ try {
 }
 baseConfig = Object.assign({}, defaultConfig, baseConfig);
 baseLevels = Object.assign({}, defaultLevels, baseLevels);
+// default config sets no ignored levels, so no assign necessary, but we do have
+// to resolve arrays o objects
+if (Array.isArray(baseConfig.ignoredLevels)) {
+	baseConfig.ignoredLevels = baseConfig.ignoredLevels.reduce((acc, val) => {
+		acc[val] = true;
+		return acc;
+	}, {});
+}
 
 /**
  * Applies a terminal color style to a bit of text via `chalk`.
@@ -77,8 +84,8 @@ function timestamp () {
  * @param {string} config.label A string to prefix logs fron this logger with
  * @param {boolean} config.timestamps Whether or not to include timestamps with
  * messages
- * @param {string[]} config.ignoredLevels A list of level names that should be
- * excluded from the output
+ * @param {string[] | Object} config.ignoredLevels A list of level names that
+ * should be excluded from the output
  * @param {Object} levels An object containing levels to use for the logger.
  * Keys of the object are level names as they're called from code, and each key
  * should map to an object with options I can't document here because JSDoc is
@@ -90,6 +97,16 @@ function createLogger (config, levels) {
 	levels = levels || config && config.levels || {};
 	levels = Object.assign({}, baseLevels, levels);
 	config = Object.assign({}, baseConfig, config);
+	if (Array.isArray(config.ignoredLevels)) {
+		// Transform to object
+		config.ignoredLevels = config.ignoredLevels.reduce((acc, val) => {
+			acc[val] = true;
+			return acc;
+		}, {});
+		// To maintain legacy behavior, don't factor in base config
+	}
+	// Merge with base config
+	config.ignoredLevels = Object.assign({}, baseConfig.ignoredLevels, config.ignoredLevels);
 	delete config.levels; // don't rely on this since it may not be passed in
 
 	// Construct the base logger object
@@ -97,7 +114,7 @@ function createLogger (config, levels) {
 		_config: Object.assign({}, baseConfig, config),
 		_log (level, ...contents) {
 			// If the log level is ignored, do nothing
-			if (this._config.ignoredLevels.includes(level)) return;
+			if (this._config.ignoredLevels[level]) return;
 			// Assemble all the parts of the message prefix
 			const time = this._config.timestamps ? timestamp() : '';
 			const label = this._config.label || '';
@@ -112,13 +129,13 @@ function createLogger (config, levels) {
 			console.log(`${prefix} ${contents}`);
 		},
 		_trace (level, ...contents) {
-			if (this._config.ignoredLevels.includes(level)) return;
+			if (this._config.ignoredLevels[level]) return;
 			// Remove the first two lines, leaving a newline as the first char
 			const stacktrace = new Error().stack.replace(/.*\n.*/, '');
 			this._log(level, util.format(...contents) + stacktrace);
 		},
 		_table (level, ...contents) {
-			if (this._config.ignoredLevels.includes(level)) return;
+			if (this._config.ignoredLevels[level]) return;
 			// HACK: This code calls the built-in console.table() function but
 			//       on a proxy that hijacks the output function and sends the
 			//       generated table to our logger.

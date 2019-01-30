@@ -23,7 +23,9 @@ interface LoggingFunction {
 interface Config {
     timestamps?: boolean;
     label?: string;
-    ignoredLevels?: string[];
+    ignoredLevels?: string[] | {
+        [x: string]: boolean;
+    };
     levels?: Levels;
 }
 
