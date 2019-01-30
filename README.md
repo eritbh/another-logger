@@ -66,7 +66,11 @@ When requiring the module, you get two things in one: a default logger instance,
 
 	Note that the `levels` object can optionally be passed as a second argument to the function rather than as a key of the main config object. This can be useful if you import config options but want to override the levels per-file, for example.
 
-- `ignoredLevels` - An array of level names to ignore. These levels will not error, but won't write anything to the console when they're called, either. Useful for debug levels that shouldn't show anything in production.
+- `ignoredLevels` - An object representing levels to ignore. Level names are keys, and values should be truthy if the level is ignore and falsy if not.
+
+  Alternatively, an array of level names (strings) can be passed. All levels in the array will be ignored.
+
+  These levels will not error, but won't write anything to the console when they're called, either. Useful for debug levels that shouldn't show anything in production.
 
 - `label` - A label to print along with all output. Note that this can also be specified as a first argument in the constructor; if both are specified, the positional argument takes precedence over the object property.
 
@@ -78,6 +82,10 @@ Note that this config object can also be specified in a `logger.config.js(on)` f
 const myLogger = require('another-logger')({
   label: 'global',
   timestamps: true,
+  ignoredLevels: {
+    warn: true,
+    success: process.env.HIDE_SUCCESS,
+  },
   levels: {
     uhoh: {text: 'Uh-oh!', style: 'magenta'}
   }

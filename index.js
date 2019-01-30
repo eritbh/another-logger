@@ -97,17 +97,18 @@ function createLogger (config, levels) {
 	levels = levels || config && config.levels || {};
 	levels = Object.assign({}, baseLevels, levels);
 	config = Object.assign({}, baseConfig, config);
+	delete config.levels; // don't rely on this since it may not be passed in
+
+	// Resolve ignoredLevels
 	if (Array.isArray(config.ignoredLevels)) {
 		// Transform to object
 		config.ignoredLevels = config.ignoredLevels.reduce((acc, val) => {
 			acc[val] = true;
 			return acc;
 		}, {});
-		// To maintain legacy behavior, don't factor in base config
 	}
 	// Merge with base config
 	config.ignoredLevels = Object.assign({}, baseConfig.ignoredLevels, config.ignoredLevels);
-	delete config.levels; // don't rely on this since it may not be passed in
 
 	// Construct the base logger object
 	const logger = {
