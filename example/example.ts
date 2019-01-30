@@ -1,8 +1,10 @@
-'use strict';
+// NOTE: In typescript, `import log from 'another-logger'` doesn't work, because
+//       that syntax is incompatible with exported functions. You have to use
+//       `import log = require('another-logger')` instead.
 
-// The default logger object loads options from logger.config.js/json, so if you
-// define your options there, you can use it as a standalone object
-const log = require('..');
+// The default logger object loads options from logger.config.js/json/ts, so if
+// you define your options there, you can use it as a standalone object
+import log = require('..');
 log.debug('Debug message (ignored)');
 log.info('Info message (ignored)');
 log.warn('Warning message');
@@ -10,12 +12,15 @@ log.error('Error message with', 'multiple arguments');
 log.success('Success message with', {object: 'inspection'});
 log.custom('Custom level, using %d %s', 2, 'percent-strings');
 log.custom.trace('Custom level with a traceback and a table below');
-log.success.table([
+log.custom.table([
 	{a: 1, b: 2, c: 3},
 	{a: 4, b: 5, c: 6},
 ]);
 
-const log2 = require('..')({
+// You can also call it as a function to create a new instance with additional
+// configuration options
+import Logger = require('..');
+const log2 = Logger({
 	// This custom logger has a label attached
 	label: 'Logger 2',
 	// We can also override the options in logger.config.js
