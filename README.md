@@ -60,7 +60,7 @@ When requiring the module, you get two things in one: a default logger instance,
 
 	- `text` - Custom text to display for this level. If omitted, the name of the level is used (which is sufficient most of the time).
 
-	- `style` - The style to use for displaying this level's name. This can be a function or a string; if it's a string, it will be parsed as a space and/or period-separated list of [`chalk`](https://npmjs.com/package/chalk)'s named styles (red, gray, bgBlue, etc). See that package's README for a full list.
+	- `style` - The style to use for displaying this level's name. This can be a function or a string; if it's a string, it will be parsed as a space- and/or period-separated list of [`chalk`](https://npmjs.com/package/chalk)'s named styles (red, gray, bgBlue, etc). See that package's README for a full list.
 
 	- `stream` - The stream this log should output to. Overrides the logger setting on a per-level basis.
 

@@ -84,18 +84,18 @@ function timestamp () {
  * @param {string} config.label A string to prefix logs fron this logger with
  * @param {boolean} config.timestamps Whether or not to include timestamps with
  * messages
- * @param {string[] | Object} config.ignoredLevels A list of level names that
- * should be excluded from the output
- * @param {Object} levels An object containing levels to use for the logger.
- * Keys of the object are level names as they're called from code, and each key
- * should map to an object with options I can't document here because JSDoc is
- * stupid and doesn't like custom object things
+ * @param {Object | string[]} config.ignoreLevels An object mapping level names
+ * to a boolean indicating whether or not the level should be ignored, or an
+ * array of level names to be ignored
+ * @param {Object} config.levels An object containing levels to use for the
+ * logger. Keys of the object are level names as they're called from code, and
+ * each key should map to an object with options I can't document here because
+ * JSDoc is stupid and doesn't like custom object things
  * @returns {Object} The logger object
  */
-function createLogger (config, levels) {
+function createLogger (config = {}) {
 	// Compute the calculated levels/config options by applying the defaults
-	levels = levels || config && config.levels || {};
-	levels = Object.assign({}, baseLevels, levels);
+	const levels = Object.assign({}, baseLevels, config.levels);
 	config = Object.assign({}, baseConfig, config);
 	delete config.levels; // don't rely on this since it may not be passed in
 
@@ -137,7 +137,7 @@ function createLogger (config, levels) {
 		},
 		_table (level, ...contents) {
 			if (this._config.ignoredLevels[level]) return;
-			// HACK: This code calls the built-in console.table() function but
+			// HACK: This code calls the built-in console.table() function, but
 			//       on a proxy that hijacks the output function and sends the
 			//       generated table to our logger.
 			const fakeConsole = new Proxy(console, {
