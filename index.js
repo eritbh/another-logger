@@ -55,15 +55,16 @@ if (Array.isArray(baseConfig.ignoredLevels)) {
  * @todo support chalk's fn calls, e.g. .rgb()
  *
  * @param {string} text The text to apply the style to
- * @param {string} styleString The style string to apply, a space- or
+ * @param {string} style The style string to apply, a space- or
  * period-separated list of *named* (no custom rgb() calls, etc.) `chalk` styles
  * (see the `chalk` package documentation for a list:
  * {@link https://www.npmjs.com/package/chalk/v/2.4.1})
  * @returns {string} The text with the style applied
  */
-function style (text, styleString) {
-	if (!chalk || !styleString) return text;
-	const parts = styleString.split(/[. ]/g);
+function applyStyle (text, style) {
+	if (!chalk || !style) return text;
+	if (typeof style === 'function') return style(text);
+	const parts = style.split(/[. ]/g);
 	let stylefn = chalk;
 	while (parts.length) {
 		stylefn = stylefn[parts.shift()] || stylefn;
@@ -179,7 +180,7 @@ function createLogger (config = {}) {
 		// Duplicate the object so we don't accidentally modify base config
 		const levelObj = {...levels[level]};
 		// Store extra options on the level object
-		levelObj.cachedText = style(levelObj.text || level, levelObj.style);
+		levelObj.cachedText = applyStyle(levelObj.text || level, levelObj.style);
 		levelObj.name = level;
 		if (!levelObj.stream) {
 			levelObj.stream = config.stream || process.stdout;
