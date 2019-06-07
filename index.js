@@ -62,7 +62,7 @@ if (Array.isArray(baseConfig.ignoredLevels)) {
  * @returns {string} The text with the style applied
  */
 function style (text, styleString) {
-	if (!chalk) return text;
+	if (!chalk || !styleString) return text;
 	const parts = styleString.split(/[. ]/g);
 	let stylefn = chalk;
 	while (parts.length) {
@@ -168,7 +168,7 @@ function createLogger (config = {}) {
 		// alignment. `indexOf` check because passing e.g. a number to the table
 		// function results in that number being returned, and numbers don't
 		// have an `indexOf` method.
-		if (tableString.indexOf && tableString.indexOf('\n') !== -1) {
+		if (typeof tableString === 'string' && tableString.indexOf('\n') !== -1) {
 			tableString = `\n${tableString}`;
 		}
 		log.call(this, tableString);
