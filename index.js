@@ -14,6 +14,7 @@ try {
 const defaultConfig = {
 	timestamps: false,
 	label: '',
+	stream: process.stdout,
 };
 const defaultLevels = {
 	debug: {style: 'cyan'},
@@ -114,6 +115,8 @@ function consoleTable (...contents) {
  * @param {Object | string[]} config.ignoreLevels An object mapping level names
  * to a boolean indicating whether or not the level should be ignored, or an
  * array of level names to be ignored
+ * @param {Stream?} config.stream A writable stream (or any object that has a
+ * `.write()` method) that the output of this level is sent to
  * @param {Object} config.levels An object containing levels to use for the
  * logger. Keys of the object are level names as they're called from code, and
  * each key should map to an object with options I can't document here because
@@ -133,7 +136,7 @@ function createLogger (config = {}) {
 			return acc;
 		}, {});
 	}
-	// Merge with base config
+	// Merge with base config's ignored levels
 	config.ignoredLevels = Object.assign({}, baseConfig.ignoredLevels, config.ignoredLevels);
 
 	// Create the logger object
@@ -150,7 +153,7 @@ function createLogger (config = {}) {
 			this.cachedText,
 		].filter(s => s).join(' ');
 		contents = util.format(...contents);
-		(this.stream || process.stdout).write(`${prefix} ${contents}\n`);
+		this.stream.write(`${prefix} ${contents}\n`);
 	}
 	function trace (...contents) {
 		if (config.ignoredLevels[this.name]) return;
@@ -177,6 +180,9 @@ function createLogger (config = {}) {
 		// Store extra options on the level object
 		levelObj.cachedText = style(levelObj.text || level, levelObj.style);
 		levelObj.name = level;
+		if (!levelObj.stream) {
+			levelObj.stream = config.stream || process.stdout;
+		}
 		// Bind private functions to the level object and put them on the logger
 		const levelFunc = log.bind(levelObj);
 		levelFunc.trace = trace.bind(levelObj);
