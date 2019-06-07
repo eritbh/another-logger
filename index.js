@@ -175,8 +175,9 @@ function createLogger (config = {}) {
 	}
 
 	// Add levels to the logger and cache some stuff
-	for (const level in levels) {
-		const levelObj = levels[level];
+	for (const level of Object.keys(levels)) {
+		// Duplicate the object so we don't accidentally modify base config
+		const levelObj = {...levels[level]};
 		// Store extra options on the level object
 		levelObj.cachedText = style(levelObj.text || level, levelObj.style);
 		levelObj.name = level;
