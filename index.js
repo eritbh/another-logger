@@ -18,7 +18,7 @@ const defaultConfig = {
 const defaultLevels = {
 	debug: {style: 'cyan'},
 	info: {style: 'blue'},
-	log: {text: 'info', style: 'blue'},
+	log: {style: 'blue'},
 	success: {style: 'green'},
 	warn: {text: 'warning', style: 'yellow'},
 	error: {style: 'red'},
@@ -39,8 +39,8 @@ try {
 }
 baseConfig = Object.assign({}, defaultConfig, baseConfig);
 baseLevels = Object.assign({}, defaultLevels, baseLevels);
-// default config sets no ignored levels, so no assign necessary, but we do have
-// to resolve arrays o objects
+// Default config sets no ignored levels, so no assign necessary, but we do have
+// to resolve arrays or objects
 if (Array.isArray(baseConfig.ignoredLevels)) {
 	baseConfig.ignoredLevels = baseConfig.ignoredLevels.reduce((acc, val) => {
 		acc[val] = true;
@@ -49,7 +49,8 @@ if (Array.isArray(baseConfig.ignoredLevels)) {
 }
 
 /**
- * Applies a terminal color style to a bit of text via `chalk`.
+ * Applies a terminal color style to a bit of text via `chalk`. If `chalk` is
+ * not in the project, returns the text as-is.
  * @todo support chalk's fn calls, e.g. .rgb()
  *
  * @param {string} text The text to apply the style to
@@ -78,6 +79,32 @@ function timestamp () {
 	return new Date().toISOString().replace(/.*T|\..*/g, '');
 }
 
+let fakeConsole;
+let lastResult;
+/**
+ * Returns the output of console.table as a string isntead of writing it to
+ * stdout.
+ * @param  {...any} contents Arguments as passed to `console.table`
+ * @returns {string}
+ */
+function consoleTable (...contents) {
+	if (!fakeConsole) {
+		// `Console.table` internally calls `Console.log` to display results, so
+		// we override the log function to store the result in a variable
+		// rather than sending it to stdout. Because we pass process.stdout to
+		// the console constructor, the output string will contain color codes.
+		// eslint-disable-next-line no-console
+		fakeConsole = new console.Console(process.stdout);
+		fakeConsole.log = result => {
+			lastResult = result;
+		};
+	}
+	// Calling the table function stores the result in `lastResult`...
+	fakeConsole.table(...contents);
+	// ...so we can just return that variable now!
+	return lastResult;
+}
+
 /**
  * Returns a new logger object and stuff.
  * @param {Object} config An object containing configuration options
@@ -97,7 +124,6 @@ function createLogger (config = {}) {
 	// Compute the calculated levels/config options by applying the defaults
 	const levels = Object.assign({}, baseLevels, config.levels);
 	config = Object.assign({}, baseConfig, config);
-	delete config.levels; // don't rely on this since it may not be passed in
 
 	// Resolve ignoredLevels
 	if (Array.isArray(config.ignoredLevels)) {
@@ -110,70 +136,55 @@ function createLogger (config = {}) {
 	// Merge with base config
 	config.ignoredLevels = Object.assign({}, baseConfig.ignoredLevels, config.ignoredLevels);
 
-	// Construct the base logger object
-	const logger = {
-		_config: Object.assign({}, baseConfig, config),
-		_log (level, ...contents) {
-			// If the log level is ignored, do nothing
-			if (this._config.ignoredLevels[level]) return;
-			// Assemble all the parts of the message prefix
-			const time = this._config.timestamps ? timestamp() : '';
-			const label = this._config.label || '';
-			const prefix = [
-				time,
-				label,
-				this[level]._text,
-			].filter(s => s).join(' ');
-			// Format contents and write message
-			contents = util.format(...contents);
-			// eslint-disable-next-line no-console
-			console.log(`${prefix} ${contents}`);
-		},
-		_trace (level, ...contents) {
-			if (this._config.ignoredLevels[level]) return;
-			// Remove the first two lines, leaving a newline as the first char
-			const stacktrace = new Error().stack.replace(/.*\n.*/, '');
-			this._log(level, util.format(...contents) + stacktrace);
-		},
-		_table (level, ...contents) {
-			if (this._config.ignoredLevels[level]) return;
-			// HACK: This code calls the built-in console.table() function, but
-			//       on a proxy that hijacks the output function and sends the
-			//       generated table to our logger.
-			const fakeConsole = new Proxy(console, {
-				get: (c, prop) => {
-					// Replace the log function with our custom log
-					if (prop === 'log') {
-						return tableString => {
-							// If the table is multiline, add a newline at the
-							// beginning to preserve alignment
-							if (tableString.indexOf('\n') !== -1) {
-								tableString = `\n${tableString}`;
-							}
-							this._log(level, tableString);
-						};
-					}
-					// Symbol properties used in the table function need to be
-					// passed through as-is
-					return c[prop];
-				},
-			});
-			// this is literally a console logging utility, chill out eslint
-			// eslint-disable-next-line no-console
-			console.constructor.prototype.table.apply(fakeConsole, contents);
-		},
-	};
+	// Create the logger object
+	const logger = {};
 
-	// Add logging functions for each level
-	for (const level of Object.keys(levels)) {
-		// Bind the log functions for this level
-		logger[level] = logger._log.bind(logger, level);
-		logger[level].trace = logger._trace.bind(logger, level);
-		logger[level].table = logger._table.bind(logger, level);
-		// Bake in the styled text to save time later
-		logger[level]._text = style(levels[level].text || level, levels[level].style);
+	// Private functions - always called with `levelObj` (below) as `this`
+	function log (...contents) {
+		if (config.ignoredLevels[this.name]) return;
+		const time = config.timestamps ? timestamp() : '';
+		const label = config.label || '';
+		const prefix = [
+			time,
+			label,
+			this.cachedText,
+		].filter(s => s).join(' ');
+		contents = util.format(...contents);
+		(this.stream || process.stdout).write(`${prefix} ${contents}\n`);
+	}
+	function trace (...contents) {
+		if (config.ignoredLevels[this.name]) return;
+		// Remove the first two lines, leaving a newline as the first char
+		const stacktrace = new Error().stack.replace(/.*\n.*/, '');
+		log.call(this, util.format(...contents) + stacktrace);
+	}
+	function table (...contents) {
+		if (config.ignoredLevels[this.name]) return;
+		let tableString = consoleTable(...contents);
+		// If the table is multiline, add a newline at the beginning to preserve
+		// alignment. `indexOf` check because passing e.g. a number to the table
+		// function results in that number being returned, and numbers don't
+		// have an `indexOf` method.
+		if (tableString.indexOf && tableString.indexOf('\n') !== -1) {
+			tableString = `\n${tableString}`;
+		}
+		log.call(this, tableString);
 	}
 
+	// Add levels to the logger and cache some stuff
+	for (const level in levels) {
+		const levelObj = levels[level];
+		// Store extra options on the level object
+		levelObj.cachedText = style(levelObj.text || level, levelObj.style);
+		levelObj.name = level;
+		// Bind private functions to the level object and put them on the logger
+		const levelFunc = log.bind(levelObj);
+		levelFunc.trace = trace.bind(levelObj);
+		levelFunc.table = table.bind(levelObj);
+		logger[level] = levelFunc;
+	}
+
+	// \o/
 	return logger;
 }
 
