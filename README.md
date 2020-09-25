@@ -1,4 +1,4 @@
-# another-logger [![npm](https://img.shields.io/npm/v/another-logger.svg)](https://www.npmjs.com/package/another-logger)
+# another-logger [![npm](https://img.shields.io/npm/v/another-logger.svg)](https://www.npmjs.com/package/another-logger) [![npm@next](https://img.shields.io/npm/v/another-logger/next.svg)](https://www.npmjs.com/package/another-logger/v/next)
 
 Lightweight, level-based console wrapper intended for small projects and general-purpose event logging. Yet another `console.log` alternative. Inspired by the looks of [Yarn](https://yarnpkg.com/).
 
