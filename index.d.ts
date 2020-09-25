@@ -8,12 +8,12 @@ interface LoggingFunction {
     /** Send a message through the logger. */
     (...contents: any[]): void;
     /** Send a message and include a stack trace. */
-    trace (...contents: any[]): void;
+    trace(...contents: any[]): void;
     /**
      * Render a table with the given input, optionally filtering the rendered
      * properties.
      */
-    table (tabularData: any, properties?: string[]): void;
+    table(tabularData: any, properties?: string[]): void;
 }
 
 // Defines config parameters for new loggers.
@@ -34,7 +34,7 @@ interface Config {
 
 /** An object that can serve as a custom output stream. */
 interface CustomStream {
-    write (data: string): any;
+    write(data: string): any;
 }
 
 /** An object defining additional log levels. */
@@ -46,7 +46,7 @@ interface Levels {
         /** A string or function used to style the level's text */
         style?: string | ((string) => string);
         /** A stream that receives all output from this level */
-        stream: CustomStream;
+        stream?: CustomStream;
     };
 }
 
