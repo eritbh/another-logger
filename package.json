@@ -1,6 +1,6 @@
 {
   "name": "another-logger",
-  "version": "3.0.0-pre5",
+  "version": "3.0.0",
   "description": "Yet another Node console.log alternative.",
   "main": "index.js",
   "repository": "https://github.com/Geo1088/another-logger",
