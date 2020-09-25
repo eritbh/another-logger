@@ -2,6 +2,8 @@
 
 Lightweight, level-based console wrapper intended for small projects and general-purpose event logging. Yet another `console.log` alternative. Inspired by the looks of [Yarn](https://yarnpkg.com/).
 
+<p align="center"><img alt="Example screenshot 1" src=".github/screenshot.png"></p>
+
 ## Installation
 
 ```bash
@@ -15,44 +17,13 @@ To install without installing [`chalk`](https://npmjs.com/package/chalk) (the pa
 
 ## Usage
 
-```js
-const log = require('another-logger');
-
-log.debug('test 123 foobar');
-log.info('huh, neat');
-log.success('woo we did it');
-log.warn('that doesnt sound good');
-log.error('shitshitshit');
-```
-
-<p align="center"><img alt="Example screenshot 1" src="screenshots/example-1.png"></p>
-
-```js
-const Logger = require('another-logger')
-const log = new Logger('myapp', {
-	timestamps: true,
-	levels: {
-		custom: {text: 'look at me', style: 'bold magenta'}
-	},
-	ignoredLevels: ['debug'],
-});
-
-log.debug('test 123 foobar');
-log.info('huh, neat');
-log.success('woo we did it');
-log.warn('that doesnt sound good');
-log.error('shitshitshit');
-log.custom('woah dude');
-```
-
-<p align="center"><img alt="Example screenshot 2" src="screenshots/example-2.png"></p>
+For usage examples in Javascript and Typescript, see [the examples folder](/example).
 
 ## Documentation
 
 ### `const log = require('another-logger')(config);`
-### `const log = require('another-logger');`
 
-When requiring the module, you get two things in one: a default logger instance, and a constructor function that can be called to create additional logger instances. When calling the constructor function, the argument `config` is an object with the following properties:
+Requiring the module gives a function that can be called to create logger instances. When calling the function, the argument `config` is an object with the following properties:
 
 - `timestamps` - True or false. If true, a timestamp is included in front of all output.
 
@@ -74,62 +45,24 @@ When requiring the module, you get two things in one: a default logger instance,
 
 - `label` - A label to print along with all output. Note that this can also be specified as a first argument in the constructor; if both are specified, the positional argument takes precedence over the object property.
 
-You can also use the exported function as an object directly, and it will behave according to the default configuration. (This is somewhat complicated and needs to be better documented, but oh well. See the examples above for more information.)
+If you want to reuse configuration options across your project without duplicating them into every file where you create a logger, you can also create a file called `logger.config.js` or `logger.config.json` in the directory where your project is run. The package will look for this file when creating new loggers and use it as a list of default options. Options specified in this way can still be overridden on a per-logger basis by passing different options to the logger function.
 
-Note that this config object can also be specified in a `logger.config.js(on)` file in the current working directory. If this file exists, all logger instances will have the config it defines, and all config options passed to the constructor function will be applied on top of it.
+### `const log = require('another-logger');`
 
-```js
-const myLogger = require('another-logger')({
-  label: 'global',
-  timestamps: true,
-  ignoredLevels: {
-    warn: true,
-    success: process.env.HIDE_SUCCESS,
-  },
-  levels: {
-    uhoh: {text: 'Uh-oh!', style: 'magenta'},
-  },
-});
-```
+The exported function also has all the properties of a logger created with no options, which means that you can use it as a "default" logger. Using the module in this way will still respect options from `logger.config.js[on]`.
 
 ### `log.<name>(content...);`
 
 Execute a log. `name` can be any level name - one of the defaults of `debug`, `info`, `success`, `warn`, or `error`, or a custom one provided in the logger's config. Content arguments are processed via `require('util').format()` which means it works in the same way as `console.log` in regards to format strings, object previewing, etc.
 
-```js
-myLogger.uhoh('some error info');
-//=> 15:47:13 global Uh-oh! some error info
-```
-
 ### `log.<name>.trace(content...);`
 
-The same as the normal log, but appends a stack trace to the log output. Essentially the same as `console.trace()`.
-
-```js
-myLogger.debug.trace('this is where the code happened');
-//=> 15:47:13 global debug this is where the code happened
-//=>     at Object.<anonymous> (example.js:11:12)
-//=>     at ...
-```
+Emulates `console.trace`. The same as the normal log, but appends a stack trace to the log output.
 
 ### `log.<name>.table(tabularData, properties?);`
 
-Tries to generate and display a table from the object or array `tabularData`, displaying only properties whose names are in `properties` if it is passed. Logs the argument plainly if a table can't be generated. Throws an error if `properties` is given and is not an array of strings. For more information, see the [Node.js `Console.table` docs](https://nodejs.org/docs/v11.6.0/api/console.html#console_console_table_tabulardata_properties).
-
-```js
-myLogger.info.table([
-	{a: 1, b: 2, c: 3},
-	{a: 4, b: 5, c: 6},
-]);
-//=> 15:47:13 global info
-//=> ┌─────────┬───┬───┬───┐
-//=> │ (index) │ a │ b │ c │
-//=> ├─────────┼───┼───┼───┤
-//=> │    0    │ 1 │ 2 │ 3 │
-//=> │    1    │ 4 │ 5 │ 6 │
-//=> └─────────┴───┴───┴───┘
-```
+Emulates `console.table`. Tries to generate and display a table from the object or array `tabularData`, displaying only properties whose names are in `properties` if it is passed. Logs the argument plainly if a table can't be generated. Throws an error if `properties` is given and is not an array of strings. For more information, see the [Node.js `Console.table` docs](https://nodejs.org/docs/v11.6.0/api/console.html#console_console_table_tabulardata_properties).
 
 ## License
 
-MIT &copy; 2018 Geo1088
+MIT &copy; Geo1088
