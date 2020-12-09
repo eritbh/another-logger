@@ -17,9 +17,6 @@ try {
 // Create the default logger.
 export const defaultLogger = createLogger(baseConfig);
 
-/** Can be used as a logger. Can also be called to create a new logger. */
-export default Object.assign(createLogger, defaultLogger) as Logger & typeof createLogger;
-
 // Other public exports
 export * from './transports';
 export * from './Logger';
