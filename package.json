@@ -12,7 +12,8 @@
   "license": "MIT",
   "scripts": {
     "build": "tsc",
-    "test": "ava"
+    "test": "ava",
+    "prepublishOnly": "tsc && ava"
   },
   "ava": {
     "typescript": {
