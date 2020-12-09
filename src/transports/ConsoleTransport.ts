@@ -1,4 +1,4 @@
-import ansiColors from 'ansi-colors';
+import * as ansiColors from 'ansi-colors';
 
 import { Logger } from '../Logger';
 import { Transport } from './Transport';
