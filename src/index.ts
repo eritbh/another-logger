@@ -1,7 +1,6 @@
 import path from 'path';
 
-import { Logger, createLogger, LoggerConfig } from './Logger';
-import { defaultConfig } from './defaults';
+import { createLogger } from './Logger';
 
 // Attempt to read config from logger.config.js or logger.config.json in cwd
 let baseConfig: any;
