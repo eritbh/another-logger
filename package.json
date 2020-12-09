@@ -1,6 +1,6 @@
 {
   "name": "another-logger",
-  "version": "4.0.0",
+  "version": "4.0.0-pre1",
   "description": "A lightweight logging solution with sensible defaults and support for custom transports.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
