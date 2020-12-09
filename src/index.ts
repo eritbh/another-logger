@@ -24,3 +24,4 @@ export default Object.assign(createLogger, defaultLogger) as Logger & typeof cre
 export * from './transports';
 export * from './Logger';
 export * from './defaults';
+export * from './fakeConsole';
