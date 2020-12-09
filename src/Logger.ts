@@ -89,8 +89,11 @@ export function createLogger(config: LoggerConfig): Logger {
 			transports.forEach(transport => transport.send(message, levelName, logger));
 		};
 		loggerFunc.trace = (...contents: any[]) => {
-			// Remove the first two lines, leaving a newline as the first char
-			const stacktrace = new Error().stack!.replace(/.*\n.*/, '');
+			const stacktrace = new Error().stack!
+				// Remove the first two lines, leaving a newline as the first char
+				.replace(/.*\n.*/, '')
+				// Remove lines coming from internal modules
+				.replace(/\n\s*at \S+ \(internal[\s\S]*$/, '');
 			// HACK: `as [any]` DefinitelyTyped/DefinitelyTyped#50020
 			loggerFunc(util.format(...contents as [any]) + stacktrace);
 		}
