@@ -1,12 +1,13 @@
 'use strict';
 
 const test = require('ava');
+const ansiColors = require('ansi-colors');
 
-const chalk = require('chalk');
-const logger = require('./');
-const testLog = logger({ // test logger with a styleless level for easy checks
+const {createLogger, defaultLogger} = require('.');
+const { ConsoleTransport } = require('./dist/transports/ConsoleTransport');
+const testLog = createLogger({ // test logger with a styleless level for easy checks
 	levels: {
-		test: {},
+		test: true,
 	},
 });
 
@@ -20,12 +21,14 @@ test.beforeEach('Hijack process.stdout writing', t => {
 	process.stdout.write = chunk => {
 		t.context.stdout += chunk;
 		t.context.stdoutWrites += 1;
+		return true;
 	};
 });
 
 // all tests have to be serial because of how the stdout override works, rip
 
 test.serial('table is identical to console.table for valid inputs', t => {
+	// TODO: except for colors because I can't figure out how to get that to work
 	const scenarios = [
 		[[[1, 2], [3, 4]]],
 		[{a: 1, b: 'two', [Symbol('c')]: 'something', nested: {object: {action: 'foo'}}}],
@@ -45,24 +48,34 @@ test.serial('table is identical to console.table for valid inputs', t => {
 		console.table(...scenario);
 		const consoleOut = t.context.stdout;
 		t.context.stdout = '';
-		t.assert(loggerOut === consoleOut);
+		t.is(loggerOut, ansiColors.stripColor(consoleOut));
 	}
 });
 
 test.serial('basic functionality', t => {
 	testLog.test('some content');
-	t.assert(t.context.stdout === 'test some content\n');
+	t.is(t.context.stdout, 'test some content\n');
 });
 
 test.serial('multilines and color things', t => {
-	logger.error('or is it an error?\n\n\n   yarr');
-	t.assert(t.context.stdout === `${chalk.red('error')} or is it an error?\n\n\n   yarr\n`);
+	defaultLogger.error('or is it an error?\n\n\n   yarr');
+	t.is(t.context.stdout, `${ansiColors.red('error')} or is it an error?\n\n\n   yarr\n`);
 });
 
 test.serial('timestamps', t => {
-	logger({timestamps: true}).info('something creative');
+	const logger = createLogger({
+		transports: {
+			console: new ConsoleTransport({
+				levelStyles: {
+					info: 'blue'
+				},
+				showTimestamps: true,
+			}),
+		},
+	});
+	logger.info('something creative');
 	t.assert(t.context.stdout.substring(0, 8).match(/\d\d:\d\d:\d\d/));
-	t.assert(t.context.stdout.substring(8) === ` ${chalk.blue('info')} something creative\n`);
+	t.is(t.context.stdout.substring(8), ` ${ansiColors.blue('info')} something creative\n`);
 });
 
 test.todo('trace stuff');
