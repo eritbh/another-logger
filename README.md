@@ -65,4 +65,4 @@ Emulates `console.table`. Tries to generate and display a table from the object 
 
 ## License
 
-MIT &copy; Geo1088
+MIT &copy; eritbh
