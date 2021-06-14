@@ -25,4 +25,4 @@ needs to be written for v4
 
 ## License
 
-MIT &copy; Geo1088
+MIT &copy; eritbh
