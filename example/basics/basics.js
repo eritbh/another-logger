@@ -2,7 +2,7 @@
 
 // The default logger object loads options from logger.config.js/json, so if you
 // define your options there, you can use it as a standalone object
-const log = require('..');
+const log = require('another-logger').defaultLogger;
 log.debug('Debug message (shown unless you set the PRODUCTION environment variable)');
 log.info('Info message (ignored)');
 log.warn('Warning message');
@@ -15,7 +15,7 @@ log.success.table([
 	{a: 4, b: 5, c: 6},
 ]);
 
-const log2 = require('..')({
+const log2 = require('another-logger').createLogger({
 	// This custom logger has a label attached
 	label: 'Logger 2',
 	// We can also override the options in logger.config.js

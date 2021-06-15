@@ -4,7 +4,7 @@
 
 // The default logger object loads options from logger.config.js/json/ts, so if
 // you define your options there, you can use it as a standalone object
-import log = require('..');
+import {default as log} from '../../dist/index';
 log.debug('Debug message (shown unless you set the PRODUCTION environment variable)');
 log.info('Info message (ignored)');
 log.warn('Warning message');
@@ -19,20 +19,22 @@ log.custom.table([
 
 // You can also call it as a function to create a new instance with additional
 // configuration options
-import Logger = require('..');
-const log2 = Logger({
-	// This custom logger has a label attached
-	label: 'Logger 2',
+import {createLogger, ConsoleTransport} from '../..';
+const log2 = createLogger({
 	// We can also override the options in logger.config.js
-	timestamps: false,
-	ignoredLevels: {
+	levels: {
 		debug: false,
 		info: false,
 		warn: true,
+		custom2: true,
 	},
-	levels: {
-		custom2: {text: 'Custom 2', style: 'green inverse'},
-	},
+	transports: {
+		console: new ConsoleTransport({
+			levelStyles: {
+
+			}
+		})
+	}
 });
 log2.debug('Debug message (now shown)');
 log2.info('Info message (now shown; warning below will be hidden)');
