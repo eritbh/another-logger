@@ -2,7 +2,7 @@ const test = require('ava');
 const ansiColors = require('ansi-colors');
 const {captureStdout} = require('../testutil');
 
-const {createLogger, defaultLogger, ConsoleTransport} = require('../dist');
+const {createLogger, defaultLogger, ConsoleTransport} = require('..');
 
 // test logger with a colorless level for easy checks
 const testLog = createLogger({
