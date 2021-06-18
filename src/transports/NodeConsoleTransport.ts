@@ -5,7 +5,7 @@ import { Transport } from './Transport';
 
 type StyleKey = keyof typeof ansiColors["styles"];
 
-export class ConsoleTransport extends Transport {
+export class NodeConsoleTransport extends Transport {
 	showTimestamps: boolean;
 	levelTextCache = new Map<string, string>();
 
