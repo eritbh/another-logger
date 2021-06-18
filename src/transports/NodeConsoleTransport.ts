@@ -1,11 +1,11 @@
 import ansiColors from 'ansi-colors';
 
-import { Logger } from '../Logger';
-import { Transport } from './Transport';
+import { FormattedTransport } from '../models';
 
 type StyleKey = keyof typeof ansiColors["styles"];
 
-export class NodeConsoleTransport extends Transport {
+/** A transport that logs messages to the Node.js console. */
+export class NodeConsoleTransport extends FormattedTransport {
 	showTimestamps: boolean;
 	levelTextCache = new Map<string, string>();
 
@@ -16,7 +16,10 @@ export class NodeConsoleTransport extends Transport {
 		showTimestamps?: boolean,
 		levelStyles?: { [levelName: string]: StyleKey | StyleKey[] },
 	} = {}) {
-		super();
+		super({
+			colors: true,
+		});
+
 		this.showTimestamps = showTimestamps;
 		for (let [levelName, styles] of Object.entries(levelStyles)) {
 			let levelText = levelName;
@@ -26,7 +29,7 @@ export class NodeConsoleTransport extends Transport {
 		}
 	}
 
-	send(message: string, levelName: string, logger: Logger) {
+	send(message: string, levelName: string) {
 		const levelText = this.levelTextCache.get(levelName) || levelName;
 		console.log(`${this.showTimestamps ? new Date().toISOString().substr(11, 8) + ' ' : ''}${levelText} ${message}`);
 	}

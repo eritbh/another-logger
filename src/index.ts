@@ -17,6 +17,7 @@ try {
 export const defaultLogger = createLogger(baseConfig);
 
 // Other public exports
+export * from './models';
 export * from './transports';
 export * from './Logger';
 export * from './defaults';

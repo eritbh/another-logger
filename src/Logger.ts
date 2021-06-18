@@ -1,6 +1,6 @@
 import util from 'util';
 
-import { Transport } from './transports'
+import { Transport } from './models'
 import { defaultConfig } from './defaults';
 import { consoleTable } from './fakeConsole';
 
@@ -83,10 +83,8 @@ export function createLogger(config: LoggerConfig): Logger {
 
 		// Create the logger functions for this level
 		const loggerFunc: LoggerFunction = (...contents: any[]) => {
-			// HACK: `as [any]` DefinitelyTyped/DefinitelyTyped#50020
-			const message = contents.length > 0 ? util.format(...contents as [any]) : '';
 			// send message to all transports configured for this level
-			transports.forEach(transport => transport.send(message, levelName, logger));
+			transports.forEach(transport => transport.sendRaw(contents, levelName, logger));
 		};
 		loggerFunc.trace = (...contents: any[]) => {
 			const stacktrace = new Error().stack!
