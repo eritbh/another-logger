@@ -1,4 +1,4 @@
-import {Transport} from "../models";
+import {Transport} from "../models/Transport";
 
 export class BrowserConsoleTransport implements Transport {
 	levelCssCache = new Map<string, string>();

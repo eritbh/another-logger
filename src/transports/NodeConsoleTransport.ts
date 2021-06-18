@@ -1,6 +1,6 @@
 import ansiColors from 'ansi-colors';
 
-import { FormattedTransport } from '../models';
+import { FormattedTransport } from '../models/FormattedTransport';
 
 type StyleKey = keyof typeof ansiColors["styles"];
 

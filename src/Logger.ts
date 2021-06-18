@@ -1,6 +1,6 @@
 import util from 'util';
 
-import { Transport } from './models'
+import { Transport } from './models/Transport'
 import { defaultConfig } from './defaults';
 import { consoleTable } from './fakeConsole';
 

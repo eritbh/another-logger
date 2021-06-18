@@ -1,5 +1,5 @@
 import { LoggerConfig } from './Logger';
-import { NodeConsoleTransport } from './transports';
+import { NodeConsoleTransport } from './transports/NodeConsoleTransport';
 
 /**
  * The default configuration options. Options set in logger.config.js are
