@@ -39,5 +39,3 @@ export function captureConsole(func: (capturedConsole: Console) => void) {
 export function consoleTable(tabularData?: any, properties?: string[]) {
 	return captureConsole(c => c.table(tabularData, properties)).replace(/\n$/, '');
 }
-
-consoleTable([[1, 2], [3, 4]]);
