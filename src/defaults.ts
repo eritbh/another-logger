@@ -11,7 +11,6 @@ export const defaultConfig = {
 	levels: {
 		debug: true,
 		info: true,
-		log: true,
 		success: true,
 		warn: true,
 		error: true,
