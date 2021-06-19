@@ -53,7 +53,7 @@ export interface LoggerFunction {
 
 /** An object with methods for each configured log level. */
 // NOTE: I have no idea why this doesn't work as an interface, but it doesn't
-export type Logger<LevelName extends keyof any> = {
+export type Logger<LevelName extends keyof any = keyof any> = {
 	[key in LevelName]: LoggerFunction;
 }
 
