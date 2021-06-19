@@ -1,10 +1,13 @@
 import { isNode } from './util';
-import { LoggerConfig } from './Logger';
 import { BrowserConsoleTransport } from './transports/BrowserConsoleTransport';
 import { NodeConsoleTransport } from './transports/NodeConsoleTransport';
 
 /** Configuration options for the default logger. */
-export const defaultConfig: LoggerConfig = {
+// NOTE: We can't enforce that defaultConfig is a LoggerConfig without losing
+//       more specific information that we want to keep about its structure, so
+//       manually double-check that it's compatible with the LoggerConfig
+//       interface after editing.
+export const defaultConfig = {
 	levels: {
 		debug: true,
 		info: true,
@@ -34,5 +37,5 @@ export const defaultConfig: LoggerConfig = {
 				fatal: 0xBC3FBC,
 			},
 		}),
-	}
-}
+	},
+};
