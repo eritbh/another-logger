@@ -20,11 +20,9 @@ To install without installing [`chalk`](https://npmjs.com/package/chalk) (the pa
 
 ## Usage
 
-For usage examples in Javascript and Typescript, see [the examples folder](/example).
+See [USAGE.md](/USAGE.md) for a full walkthrough of the library, and [the examples folder](/example) for complete configuration examples.
 
-## Documentation
-
-needs to be written for v4
+**TODO:** include docs link here as well
 
 ## License
 
