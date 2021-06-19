@@ -17,6 +17,11 @@ jobs:
         # Direct dependencies
         yarn install
 
+        # temp: build the rollup plugin we need
+        cd node_modules/rollup-plugin-polyfill-node
+        npm i && npm run build
+        cd ../..
+
     - name: Build Typescript
       run: |
         yarn run build
