@@ -1,9 +1,7 @@
+import { isNode } from './util';
 import { LoggerConfig } from './Logger';
 import { BrowserConsoleTransport } from './transports/BrowserConsoleTransport';
 import { NodeConsoleTransport } from './transports/NodeConsoleTransport';
-
-// If true, we're running under Node.js. If false, we're in a browser.
-const isNode = typeof process !== 'undefined' && process.version != null && process.versions.node != null;
 
 /** Configuration options for the default logger. */
 export const defaultConfig: LoggerConfig = {
