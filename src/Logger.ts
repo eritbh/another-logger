@@ -51,19 +51,26 @@ export interface LoggerFunction {
 	table(tabularData: any, properties?: string[]): void;
 }
 
-/** A logger. */
-export interface Logger {
-	[levelName: string]: LoggerFunction;
+/** An object with methods for each configured log level. */
+// NOTE: I have no idea why this doesn't work as an interface, but it doesn't
+export type Logger<T extends LoggerConfig> = {
+	[key in keyof T["levels"]]: LoggerFunction;
 }
 
 /** Creates a logger from the given configuration. */
-export function createLogger(config: LoggerConfig): Logger {
-	const logger: Logger = {};
+export function createLogger<T extends LoggerConfig>(config: T): Logger<T> {
+	// {} is not assignable to Logger<T>, but we're going to add all the
+	// necessary properties so it'll be a Logger<T> by the end of this function
+	const logger = {} as Logger<T>;
+
+	// Apply the config customizations on top of the default config
+	// TODO: this is not a deep clone. does it need to be?
 	config.levels = Object.assign({}, defaultConfig.levels, config.levels);
 	config.transports = Object.assign({}, defaultConfig.transports, config.transports);
 
-	// We need to add all the levels to this logger
+	// Create logger functions for all configured levels and add them
 	for (const [levelName, levelOptions] of Object.entries(config.levels)) {
+		levelName as keyof T["levels"];
 		// Make a list of transports to send messages of this level to
 		let transports: Transport[];
 		if (levelOptions === true) {
@@ -106,7 +113,8 @@ export function createLogger(config: LoggerConfig): Logger {
 			loggerFunc(tableString);
 		}
 
-		// Add this level to the logger
+		// We don't really have a way to narrow the type of `levelName` here :(
+		// @ts-expect-error
 		logger[levelName] = loggerFunc;
 	}
 
