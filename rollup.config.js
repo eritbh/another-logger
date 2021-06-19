@@ -28,7 +28,15 @@ export default [
 			}),
 			// Polyfill Node.js modules we still require when in the browser
 			nodePolyfills({
-				include: null,
+				include: 'util',
+				sourceMap: true,
+				// exclude: 'process',
+				excludePolyfills: [
+					'process',
+					'global',
+				],
+				injectProcess: false,
+				injectGlobal: false,
 			}),
 		],
 		external: [
@@ -38,6 +46,7 @@ export default [
 			// Node.js environment and don't need to be polyfilled for browsers
 			'console',
 			'stream',
+			'_polyfill-node_process',
 		],
 	},
 ];

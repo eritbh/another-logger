@@ -2,12 +2,15 @@ const test = require('ava');
 const ansiColors = require('ansi-colors');
 const {captureStdout} = require('../testutil');
 
-const {createLogger, defaultLogger, ConsoleTransport} = require('..');
+const {createLogger, defaultLogger, NodeConsoleTransport} = require('..');
 
 // test logger with a colorless level for easy checks
 const testLog = createLogger({
 	levels: {
 		test: true,
+	},
+	transports: {
+		console: new NodeConsoleTransport(),
 	},
 });
 
@@ -26,7 +29,7 @@ test.serial('multilines and color things', t => {
 test.serial('timestamps and level colors', t => {
 	const logger = createLogger({
 		transports: {
-			console: new ConsoleTransport({
+			console: new NodeConsoleTransport({
 				levelStyles: {
 					info: 'blue'
 				},
