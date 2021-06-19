@@ -18,6 +18,7 @@ export const defaultConfig: LoggerConfig = {
 		success: true,
 		warn: true,
 		error: true,
+		fatal: true,
 	},
 	transports: {
 		console: isNode ? new NodeConsoleTransport({
@@ -27,6 +28,7 @@ export const defaultConfig: LoggerConfig = {
 				success: 'green',
 				warn: 'yellow',
 				error: 'red',
+				fatal: 'magenta',
 			}
 		}) : new BrowserConsoleTransport({
 			levelColors: {
@@ -35,6 +37,7 @@ export const defaultConfig: LoggerConfig = {
 				success: 0x0DBC79,
 				warn: 0xE5E510,
 				error: 0xCD3131,
+				fatal: 0xBC3FBC,
 			},
 		}),
 	}
