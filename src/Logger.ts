@@ -53,15 +53,18 @@ export interface LoggerFunction {
 
 /** An object with methods for each configured log level. */
 // NOTE: I have no idea why this doesn't work as an interface, but it doesn't
-export type Logger<T extends LoggerConfig> = {
-	[key in keyof T["levels"]]: LoggerFunction;
+export type Logger<LevelName extends keyof any> = {
+	[key in LevelName]: LoggerFunction;
 }
 
 /** Creates a logger from the given configuration. */
-export function createLogger<T extends LoggerConfig>(config: T): Logger<T> {
-	// {} is not assignable to Logger<T>, but we're going to add all the
-	// necessary properties so it'll be a Logger<T> by the end of this function
-	const logger = {} as Logger<T>;
+// TODO: is there any way to clean up this signatrure? I'm hesitant to touch it
+//       anymore because the intellisense tooltip it generates is really concise
+//       but if it can be simplified without making Intellisense unreadable then
+//       we should do that.
+export function createLogger<T extends LoggerConfig>(config: T): Logger<keyof T["levels"] | keyof typeof defaultConfig["levels"]> {
+	// Create the object we'll fill with logger functions
+	const logger = {};
 
 	// Apply the config customizations on top of the default config
 	// TODO: this is not a deep clone. does it need to be?
@@ -114,13 +117,18 @@ export function createLogger<T extends LoggerConfig>(config: T): Logger<T> {
 		}
 
 		// We don't really have a way to narrow the type of `levelName` here :(
-		// @ts-expect-error
 		logger[levelName] = loggerFunc;
 	}
 
-	// We've now added all levels to the logger
-	return logger;
+	// We've now added all levels to the logger, including those from the
+	// default configuration since we merged that with the given comfiguration
+	// at the beginning, so it's safe to assert that it has all the same
+	// properties as this type implies.
+	return logger as Logger<keyof T["levels"] | keyof typeof defaultConfig["levels"]>;
 }
 
-/** The default logger. Has levels `debug`, `info`, ` */
-export const defaultLogger = createLogger(defaultConfig);
+/**
+ * The default logger. Has levels `debug`, `info`, `success`, `warn`, `error`,
+ * and `fatal`, and a transport that sends log messages to the console.
+ */
+export const defaultLogger = createLogger({});
