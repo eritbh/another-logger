@@ -1,4 +1,4 @@
-import util from 'util';
+import { formatWithOptions } from 'util';
 
 import { Transport } from './models/Transport'
 import { defaultConfig } from './defaults';
@@ -92,8 +92,7 @@ export function createLogger(config: LoggerConfig): Logger {
 				.replace(/.*\n.*/, '')
 				// Remove lines coming from internal modules
 				.replace(/\n\s*at \S+ \(internal[\s\S]*$/, '');
-			// HACK: `as [any]` DefinitelyTyped/DefinitelyTyped#50020
-			loggerFunc(util.format(...contents as [any]) + stacktrace);
+			loggerFunc(formatWithOptions({}, ...contents) + stacktrace);
 		}
 		loggerFunc.table = (...contents: any[]) => {
 			let tableString = consoleTable(...contents);
