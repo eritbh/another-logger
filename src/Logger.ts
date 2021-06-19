@@ -64,12 +64,15 @@ export type Logger<LevelName extends keyof any> = {
 //       we should do that.
 export function createLogger<T extends LoggerConfig>(config: T): Logger<keyof T["levels"] | keyof typeof defaultConfig["levels"]> {
 	// Create the object we'll fill with logger functions
-	const logger = {};
+	const logger = {} as Logger<keyof T["levels"] | keyof typeof defaultConfig["levels"]>;
 
 	// Apply the config customizations on top of the default config
 	// TODO: this is not a deep clone. does it need to be?
 	config.levels = Object.assign({}, defaultConfig.levels, config.levels);
 	config.transports = Object.assign({}, defaultConfig.transports, config.transports);
+	// Because defaultConfig defines both levels and transports, we can now
+	// guarantee config.levels and config.transports are not undefined, so
+	// they can be used as config.levels! and config.transports! from now on
 
 	// Create logger functions for all configured levels and add them
 	for (const [levelName, levelOptions] of Object.entries(config.levels)) {
@@ -88,7 +91,7 @@ export function createLogger<T extends LoggerConfig>(config: T): Logger<keyof T[
 			if (levelOptions.disableTransports) {
 				transportNames = transportNames.filter(name => !levelOptions.disableTransports?.includes(name));
 			}
-			transports = transportNames.map(name => config.transports[name]).filter(t => t);
+			transports = transportNames.map(name => config.transports![name]).filter(t => t);
 		}
 
 		// Create the logger functions for this level
@@ -116,15 +119,16 @@ export function createLogger<T extends LoggerConfig>(config: T): Logger<keyof T[
 			loggerFunc(tableString);
 		}
 
-		// We don't really have a way to narrow the type of `levelName` here :(
-		logger[levelName] = loggerFunc;
+		// We know levelName is a level key since it came right out of 
+		// Object.entries(config.levels) above, Typescript just doesn't know it
+		logger[levelName as keyof T["levels"]] = loggerFunc;
 	}
 
 	// We've now added all levels to the logger, including those from the
 	// default configuration since we merged that with the given comfiguration
 	// at the beginning, so it's safe to assert that it has all the same
 	// properties as this type implies.
-	return logger as Logger<keyof T["levels"] | keyof typeof defaultConfig["levels"]>;
+	return logger;
 }
 
 /**
