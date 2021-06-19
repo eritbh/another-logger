@@ -13,7 +13,7 @@ export interface LoggerConfig {
 	 * sends the level to no transports (disabling its output), and an object
 	 * value can be used to provide control for individual transports.
 	 */
-	levels: {
+	levels?: {
 		[name: string]: boolean | {
 			/**
 			 * A list of transport names that this level should be sent to.
@@ -33,7 +33,7 @@ export interface LoggerConfig {
 	 * For each entry in this object, the key is the name of the transport, and
 	 * the value is a transport instance.
 	 */
-	transports: {
+	transports?: {
 		[name: string]: Transport;
 	};
 }
