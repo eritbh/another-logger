@@ -1,4 +1,4 @@
-import { formatWithOptions, InspectOptions } from 'util';
+import { format, InspectOptions } from 'util';
 
 import { Logger } from '../Logger';
 import { Transport } from './Transport';
@@ -10,6 +10,8 @@ import { Transport } from './Transport';
  */
 export abstract class FormattedTransport extends Transport {
 	/** Options passed to `util.formatWithOptions` when formatting messages. */
+	// TODO: currently unused since formatWithOptions isn't polyfilled and we
+	//       just use format instead
 	formatOptions: InspectOptions;
 
 	constructor (formatOptions: InspectOptions = {}) {
@@ -18,7 +20,7 @@ export abstract class FormattedTransport extends Transport {
 	}
 
 	sendRaw (contents: any[], levelName: string, logger: Logger): void {
-		let message = formatWithOptions(this.formatOptions, ...contents);
+		let message = format(...contents);
 		this.send(message, levelName, logger);
 	}
 

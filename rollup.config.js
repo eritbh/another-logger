@@ -1,17 +1,11 @@
 import typescript from '@rollup/plugin-typescript';
-import {builtinModules} from 'module';
+import nodePolyfills from 'rollup-plugin-polyfill-node';
 import packageJson from './package.json';
 
 export default [
 	{
 		preserveModules: true,
 		input: 'src/index.ts',
-		external: [
-			// Modules provided by Node
-			...builtinModules,
-			// Dependencies from npm
-			...Object.keys(packageJson.dependencies),
-		],
 		output: [
 			{
 				dir: 'dist',
@@ -27,10 +21,23 @@ export default [
 			},
 		],
 		plugins: [
+			// Build Typescript files to Javascript so they can be processed
 			typescript({
 				tsconfig: './tsconfig.json',
 				rootDir: 'src',
 			}),
+			// Polyfill Node.js modules we still require when in the browser
+			nodePolyfills({
+				include: null,
+			}),
+		],
+		external: [
+			// Dependencies from npm
+			...Object.keys(packageJson.dependencies),
+			// Built-in Node packages that are only referenced when running in a
+			// Node.js environment and don't need to be polyfilled for browsers
+			'console',
+			'stream',
 		],
 	},
 ];

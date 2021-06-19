@@ -1,4 +1,4 @@
-import { formatWithOptions } from 'util';
+import { format } from 'util';
 
 import { Transport } from './models/Transport'
 import { defaultConfig } from './defaults';
@@ -92,7 +92,7 @@ export function createLogger(config: LoggerConfig): Logger {
 				.replace(/.*\n.*/, '')
 				// Remove lines coming from internal modules
 				.replace(/\n\s*at \S+ \(internal[\s\S]*$/, '');
-			loggerFunc(formatWithOptions({}, ...contents) + stacktrace);
+			loggerFunc(format(...contents) + stacktrace);
 		}
 		loggerFunc.table = (...contents: any[]) => {
 			let tableString = consoleTable(...contents);
