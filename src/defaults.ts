@@ -5,11 +5,7 @@ import { NodeConsoleTransport } from './transports/NodeConsoleTransport';
 // If true, we're running under Node.js. If false, we're in a browser.
 const isNode = typeof process !== 'undefined' && process.version != null && process.versions.node != null;
 
-/**
- * The default configuration options. Options set in logger.config.js are
- * merged with these; that is, the default levels and the default `console`
- * transport will always be available, unless you override them by name.
- */
+/** Configuration options for the default logger. */
 export const defaultConfig: LoggerConfig = {
 	levels: {
 		debug: true,

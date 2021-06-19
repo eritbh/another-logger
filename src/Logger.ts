@@ -113,3 +113,6 @@ export function createLogger(config: LoggerConfig): Logger {
 	// We've now added all levels to the logger
 	return logger;
 }
+
+/** The default logger. Has levels `debug`, `info`, ` */
+export const defaultLogger = createLogger(defaultConfig);
