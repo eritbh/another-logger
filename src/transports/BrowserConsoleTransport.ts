@@ -1,6 +1,7 @@
 import {Transport} from "../models/Transport";
 
-export class BrowserConsoleTransport implements Transport {
+/** A transport that logs messages to the browser console. */
+export class BrowserConsoleTransport extends Transport {
 	levelCssCache = new Map<string, string>();
 
 	constructor ({
@@ -12,6 +13,7 @@ export class BrowserConsoleTransport implements Transport {
 		 */
 		levelColors?: Record<string, number>
 	} = {}) {
+		super();
 		// Cache the CSS used for each level
 		for (let [levelName, color] of Object.entries(levelColors)) {
 			// By setting the alpha of the color to 50% (0x7F), enough of the
