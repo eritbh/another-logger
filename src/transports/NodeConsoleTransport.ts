@@ -1,3 +1,4 @@
+import { InspectOptions } from 'util';
 import ansiColors from 'ansi-colors';
 
 import { FormattedTransport } from '../models/FormattedTransport';
@@ -10,15 +11,15 @@ export class NodeConsoleTransport extends FormattedTransport {
 	levelTextCache = new Map<string, string>();
 
 	constructor({
+		formatOptions = {},
 		showTimestamps = false,
 		levelStyles = {},
 	}: {
+		formatOptions?: InspectOptions,
 		showTimestamps?: boolean,
 		levelStyles?: { [levelName: string]: StyleKey | StyleKey[] },
 	} = {}) {
-		super({
-			colors: true,
-		});
+		super(Object.assign({colors: true}, formatOptions));
 
 		this.showTimestamps = showTimestamps;
 		for (let [levelName, styles] of Object.entries(levelStyles)) {
