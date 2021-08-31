@@ -26,7 +26,7 @@ jobs:
       run: |
         # temp: build the rollup plugin we need
         cd node_modules/rollup-plugin-polyfill-node
-        npm ci && npm run build
+        npm i && npm run build
         cd ../..
 
     - name: Build Typescript
