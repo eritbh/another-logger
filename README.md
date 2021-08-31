@@ -10,9 +10,6 @@ A lightweight yet highly configurable logging utility designed to make logs more
 ## Installation
 
 ```bash
-# yarn
-yarn add another-logger
-# npm
 npm install --save another-logger
 ```
 
