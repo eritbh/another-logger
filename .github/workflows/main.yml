@@ -16,14 +16,17 @@ jobs:
       with:
         node-version: 15 # earliest node that ships with npm@7
 
-    - name: Install dependencies
-      run: |
-        # Direct dependencies
-        npm ci
+    - run: |
+        npm i -g npm@7
+        npm --version
 
+    - run: npm ci
+
+    - name: Build the custom rollup plugin
+      run: |
         # temp: build the rollup plugin we need
         cd node_modules/rollup-plugin-polyfill-node
-        npm i && npm run build
+        npm ci && npm run build
         cd ../..
 
     - name: Build Typescript
