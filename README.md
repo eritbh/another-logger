@@ -13,11 +13,14 @@ A lightweight yet highly configurable logging utility designed to make logs more
 npm install --save another-logger
 ```
 
-To install without installing [`chalk`](https://npmjs.com/package/chalk) (the package used for color support), add `--no-optional` to the end of either of these commands.
-
 ## Usage
 
-See [USAGE.md](/USAGE.md) for a full walkthrough of the library, and [the examples folder](/example) for complete configuration examples.
+```js
+import {defaultLogger as log} from 'another-logger';
+log.info('Hi there!');
+```
+
+See [USAGE.md](/USAGE.md) for a full walkthrough of the library, including logger customization and custom transports. Also see [the examples folder](/example) for complete configuration examples.
 
 **TODO:** include docs link here as well
 
