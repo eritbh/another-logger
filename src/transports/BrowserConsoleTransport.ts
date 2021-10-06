@@ -1,34 +1,26 @@
-import {Transport} from "../models/Transport";
+import {Transport} from "../Logger";
 
 /** A transport that logs messages to the browser console. */
-export class BrowserConsoleTransport extends Transport {
-	levelCssCache = new Map<string, string>();
-
-	constructor ({
-		levelColors = {}
-	}: {
-		/**
-		 * A map of level names to colors used in the console. Colors can be
-		 * specified as 6-digit hex number literals, e.g. `0x0094FF`.
-		 */
-		levelColors?: Record<string, number>
-	} = {}) {
-		super();
-		// Cache the CSS used for each level
-		for (let [levelName, color] of Object.entries(levelColors)) {
-			// By setting the alpha of the color to 50% (0x7F), enough of the
-			// background bleeds through that using the default text color of
-			// the console is pretty much always readable. This also means the
-			// styles will look good in both light and dark devtools themes.
-			let backgroundColor = `#${('000000' + color.toString(16)).slice(-6)}7F`;
-			this.levelCssCache.set(levelName, `
-				background-color: ${backgroundColor};
-			`);
-		}
+export const createBrowserConsoleTransport = ({
+	levelColors = {},
+}: {
+	levelColors?: Record<string, number>,
+}): Transport => {
+	// Cache the CSS used for each level
+	let levelCssCache = new Map<keyof any, string>();
+	for (let [levelName, color] of Object.entries(levelColors)) {
+		// By setting the alpha of the color to 50% (0x7F), enough of the
+		// background bleeds through that using the default text color of
+		// the console is pretty much always readable. This also means the
+		// styles will look good in both light and dark devtools themes.
+		let backgroundColor = `#${('000000' + color.toString(16)).slice(-6)}7F`;
+		levelCssCache.set(levelName, `
+			background-color: ${backgroundColor};
+		`);
 	}
 
-	sendRaw (message: any[], level: string) {
-		const levelCss = this.levelCssCache.get(level) || '';
+	return (message, level) => {
+		const levelCss = levelCssCache.get(level) || '';
 		console.log(
 			// Initial section with CSS styling for the level name. We want some
 			// horizontal padding around the level name in its little "tag," but
@@ -37,7 +29,7 @@ export class BrowserConsoleTransport extends Transport {
 			// which we hide via CSS, leaving a visually clean interface in the
 			// HTML console that magically turns into a bracketed level name
 			// when saved/copied as plain text.
-			`%c[%c${level}%c]`,
+			`%c[%c${String(level)}%c]`, // String() to handle symbol level names
 			// CSS style for the first hidden bracket
 			`
 				${levelCss}

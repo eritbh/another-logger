@@ -1,37 +1,35 @@
-import { InspectOptions } from 'util';
-import ansiColors from 'ansi-colors';
+import { formatWithOptions, InspectOptions } from 'util';
+import * as ansiColors from 'ansi-colors';
 
-import { FormattedTransport } from '../models/FormattedTransport';
+import { Transport } from '../Logger';
 
 type StyleKey = keyof typeof ansiColors["styles"];
 
 /** A transport that logs messages to the Node.js console. */
-export class NodeConsoleTransport extends FormattedTransport {
-	showTimestamps: boolean;
-	levelTextCache = new Map<string, string>();
+export const createNodeConsoleTransport = ({
+	formatOptions = {},
+	showTimestamps = false,
+	levelStyles = {},
+}: {
+	formatOptions?: InspectOptions,
+	showTimestamps?: boolean,
+	levelStyles?: { [levelName: string]: StyleKey | StyleKey[] },
+} = {}): Transport => {
+	// Use colored output unless explicitly disabled
+	formatOptions = Object.assign({colors: true}, formatOptions);
 
-	constructor({
-		formatOptions = {},
-		showTimestamps = false,
-		levelStyles = {},
-	}: {
-		formatOptions?: InspectOptions,
-		showTimestamps?: boolean,
-		levelStyles?: { [levelName: string]: StyleKey | StyleKey[] },
-	} = {}) {
-		super(Object.assign({colors: true}, formatOptions));
-
-		this.showTimestamps = showTimestamps;
-		for (let [levelName, styles] of Object.entries(levelStyles)) {
-			let levelText = levelName;
-			if (!Array.isArray(styles)) styles = [styles];
-			styles.forEach(style => levelText = ansiColors[style](levelText));
-			this.levelTextCache.set(levelName, levelText);
-		}
+	// Cache the text/styles used for each level
+	const levelTextCache = new Map<keyof any, string>();
+	for (let [levelName, styles] of Object.entries(levelStyles)) {
+		let levelText = levelName;
+		if (!Array.isArray(styles)) styles = [styles];
+		styles.forEach(style => levelText = ansiColors[style](levelText));
+		levelTextCache.set(levelName, levelText);
 	}
 
-	send(message: string, levelName: string) {
-		const levelText = this.levelTextCache.get(levelName) || levelName;
-		console.log(`${this.showTimestamps ? new Date().toISOString().substr(11, 8) + ' ' : ''}${levelText} ${message}`);
+	return (contents, levelName) => {
+		let message = formatWithOptions(formatOptions, ...contents);
+		const levelText = levelTextCache.get(levelName) || String(levelName);
+		console.log(`${showTimestamps ? new Date().toISOString().substr(11, 8) + ' ' : ''}${levelText} ${message}`);
 	}
 }
