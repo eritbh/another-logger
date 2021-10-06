@@ -1,6 +1,6 @@
 import { isNode } from './util';
-import { createBrowserConsoleTransport } from './transports/BrowserConsoleTransport';
-import { createNodeConsoleTransport } from './transports/NodeConsoleTransport';
+import { createBrowserConsoleTransport } from './transports/browserConsoleTransport';
+import { createNodeConsoleTransport } from './transports/nodeConsoleTransport';
 import { createLogger } from './Logger';
 
 /**

@@ -19,7 +19,7 @@ export const createBrowserConsoleTransport = ({
 		`);
 	}
 
-	return (message, level) => {
+	return function browserConsoleTransport (message, level) {
 		const levelCss = levelCssCache.get(level) || '';
 		console.log(
 			// Initial section with CSS styling for the level name. We want some

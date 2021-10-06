@@ -27,7 +27,7 @@ export const createNodeConsoleTransport = ({
 		levelTextCache.set(levelName, levelText);
 	}
 
-	return (contents, levelName) => {
+	return function nodeConsoleTransport (contents, levelName) {
 		let message = formatWithOptions(formatOptions, ...contents);
 		const levelText = levelTextCache.get(levelName) || String(levelName);
 		console.log(`${showTimestamps ? new Date().toISOString().substr(11, 8) + ' ' : ''}${levelText} ${message}`);
