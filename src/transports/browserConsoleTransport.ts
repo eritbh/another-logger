@@ -4,7 +4,7 @@ import {Transport} from "../Logger";
 export const createBrowserConsoleTransport = ({
 	levelColors = {},
 }: {
-	levelColors?: Record<string, number>,
+	levelColors?: Record<keyof any, number>,
 }): Transport => {
 	// Cache the CSS used for each level
 	let levelCssCache = new Map<keyof any, string>();
