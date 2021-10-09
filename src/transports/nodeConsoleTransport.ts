@@ -1,5 +1,5 @@
 import { formatWithOptions, InspectOptions } from 'util';
-import * as ansiColors from 'ansi-colors';
+import ansiColors from 'ansi-colors';
 
 import { Transport } from '../Logger';
 
