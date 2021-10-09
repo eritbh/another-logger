@@ -1,11 +1,13 @@
 import typescript from '@rollup/plugin-typescript';
-import nodePolyfills from 'rollup-plugin-polyfill-node';
 import packageJson from './package.json';
 
 export default [
 	{
 		preserveModules: true,
-		input: 'src/index.ts',
+		input: [
+			'src/index.browser.ts',
+			'src/index.node.ts',
+		],
 		output: [
 			{
 				dir: 'dist',
@@ -25,18 +27,6 @@ export default [
 			typescript({
 				tsconfig: './tsconfig.json',
 				rootDir: 'src',
-			}),
-			// Polyfill Node.js modules we still require when in the browser
-			nodePolyfills({
-				include: 'util',
-				sourceMap: true,
-				// exclude: 'process',
-				excludePolyfills: [
-					'process',
-					'global',
-				],
-				injectProcess: false,
-				injectGlobal: false,
 			}),
 		],
 		external: [

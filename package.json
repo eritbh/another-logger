@@ -2,20 +2,34 @@
   "name": "another-logger",
   "version": "4.0.0-pre2",
   "description": "A lightweight logging solution with sensible defaults and support for custom transports.",
-  "main": "dist/index.cjs",
-  "module": "dist/index.mjs",
-  "types": "dist/index.d.ts",
-  "files": [
-    "dist/**/*"
-  ],
   "repository": "https://github.com/eritbh/another-logger",
   "author": "eritbh <erin20913@gmail.com>",
   "license": "MIT",
+
+  "main": "dist/index.node.cjs",
+  "module": "dist/index.node.mjs",
+  "browser": {
+    "./dist/index.node.mjs": "./dist/index.browser.mjs",
+    "./dist/index.node.cjs": "./dist/index.browser.cjs",
+    "./dist/index.node.d.ts": "./dist/index.browser.d.ts"
+  },
+  "files": [
+    "dist/**/*"
+  ],
+
   "scripts": {
     "build": "rollup -c rollup.config.js",
     "test": "ava",
     "prepublishOnly": "rollup -c rollup.config.js && ava"
   },
+  "ava": {
+    "typescript": {
+      "rewritePaths": {
+        "src/": "dist/"
+      }
+    }
+  },
+
   "dependencies": {
     "ansi-colors": "^4.1.1"
   },
@@ -26,15 +40,7 @@
     "@types/node": "^15.12.3",
     "ava": "^3.14.0",
     "rollup": "^2.51.2",
-    "rollup-plugin-polyfill-node": "eritbh/rollup-plugin-polyfill-node#support-excluding-certain-polyfills",
     "tslib": "^2.3.0",
     "typescript": "^4.1.2"
-  },
-  "ava": {
-    "typescript": {
-      "rewritePaths": {
-        "src/": "dist/"
-      }
-    }
   }
 }
