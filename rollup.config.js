@@ -31,12 +31,11 @@ export default [
 		],
 		external: [
 			// Dependencies from npm
-			...Object.keys(packageJson.dependencies),
+			...Object.keys(packageJson.dependencies || {}),
+			...Object.keys(packageJson.optionalDependencies || {}),
 			// Built-in Node packages that are only referenced when running in a
-			// Node.js environment and don't need to be polyfilled for browsers
-			'console',
-			'stream',
-			'_polyfill-node_process',
+			// Node.js environment
+			'util',
 		],
 	},
 ];
