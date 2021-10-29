@@ -1,6 +1,6 @@
 {
   "name": "another-logger",
-  "version": "4.0.0-pre2",
+  "version": "4.0.0-pre4",
   "description": "Lightweight logging for Node.js and the browser",
   "repository": "https://github.com/eritbh/another-logger",
   "author": "eritbh <erin20913@gmail.com>",
@@ -18,7 +18,7 @@
   "scripts": {
     "build": "rollup -c rollup.config.js",
     "test": "ava",
-    "prepublishOnly": "rollup -c rollup.config.js && ava"
+    "prepublishOnly": "npm run build"
   },
   "ava": {
     "typescript": {
