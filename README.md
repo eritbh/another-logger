@@ -1,6 +1,6 @@
 # another-logger [![npm](https://img.shields.io/npm/v/another-logger.svg)](https://www.npmjs.com/package/another-logger) [![npm@next](https://img.shields.io/npm/v/another-logger/next.svg)](https://www.npmjs.com/package/another-logger/v/next)
 
-A lightweight yet highly configurable logging utility designed to make logs more accessible for projects of all sizes.
+A lightweight logging utility for Node.js and the browser.
 
 <p align="center">
 <img alt="Example screenshot 1" src=".github/screenshots/windows-terminal.png" width="252">

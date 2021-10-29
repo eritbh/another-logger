@@ -1,7 +1,7 @@
 {
   "name": "another-logger",
   "version": "4.0.0-pre2",
-  "description": "A lightweight logging solution with sensible defaults and support for custom transports.",
+  "description": "Lightweight logging for Node.js and the browser",
   "repository": "https://github.com/eritbh/another-logger",
   "author": "eritbh <erin20913@gmail.com>",
   "license": "MIT",
