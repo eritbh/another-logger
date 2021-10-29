@@ -16,24 +16,17 @@ jobs:
       with:
         node-version: 15 # earliest node that ships with npm@7
 
-    - run: |
+    # TODO: Remove when this is default
+    - name: Use npm@7
+      run: |
         npm i -g npm@7
         npm --version
 
     - run: npm ci
 
-    - name: Build the custom rollup plugin
-      run: |
-        # temp: build the rollup plugin we need
-        cd node_modules/rollup-plugin-polyfill-node
-        npm i && npm run build
-        cd ../..
+    - run: npm run build
 
-    - name: Build Typescript
-      run: |
-        npm run build
-    
-    - name: Push build artifacts
+    - name: Push built code to Github builds branch
       env:
         DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
       run: |
@@ -44,14 +37,14 @@ jobs:
         # Create another clone of the repository in a temporary directory
         git clone "$(git remote get-url origin)" .temp
         cd .temp
-        
+
         # Checkout the builds branch, or create one if it doesn't exist yet
         git checkout "$BUILDS_BRANCH_NAME" || git checkout --orphan "$BUILDS_BRANCH_NAME"
         # When creating a new branch, the whole working directory is added by default, but we don't want that
         git reset
         # We also have to pull changes from the remote if possible
         git pull || true
-        
+
         # Move build artifacts and metadata into this new directory, including files always included in npm packages per https://docs.npmjs.com/files/package.json#files
         cp -r ../dist .
         cp ../package.json .
@@ -70,10 +63,10 @@ jobs:
         git config user.name "Build Bot"
         git config user.email "bot@github-actions"
         git commit -m "Build of ${GITHUB_SHA:0:7}"
-        
+
         # Convert remote URL from HTTPS to SSH format so we can use our deploy key
         git remote set-url origin "$(git remote get-url origin | sed 's#http.*com/#git@github.com:#g')"
-        
+
         # Push the commit to the origin
         eval `ssh-agent -t 60 -s`
         echo "$DEPLOY_KEY" | ssh-add -
