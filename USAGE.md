@@ -16,69 +16,91 @@ There are six levels provided by default: `debug`, `info`, `success`, `farn`, `e
 
 ## Creating new loggers
 
-The default logger instance works great as a drop-in replacement for `console.log` in smaller projects, but as your project grows, you'll probably want to modify the behavior of your logger a bit. Perhaps you want to disable some levels in production environments or add a custom level. We'll cover how to do all this in the next section, but first we'll have to create a new logger instance and share it with the rest of the project.
+The default logger instance works great as a drop-in replacement for `console.log` in smaller projects, but as your project grows, you'll probably want to modify the behavior of your logger a bit. Perhaps you want to disable some levels in production environments or add a custom level. We'll cover how to do all this in the next section, but first we'll have to create a new logger instance and share it with the rest of the project. When creating a new logger, you provide it with a list of log levels, and you specify which *transports* to use for each level. Transports define how log messages are reported; we'll talk more about them in a moment.
 
-Configuration options can't be set when using the default logger, but don't worry! You can create a new file dedicated to your new, shiny custom logger, then import it in place of the default logger in the rest of your project.
+Let's start by setting up our own new logger that does the same thing as the default one:
 
 ```js
 // myLogger.js
-import {createLogger} from 'another-logger';
+import {createLogger, platformConsole} from 'another-logger';
 
 export default createLogger({
-	// your config will go here!
+	debug: [platformConsole],
+	info: [platformConsole],
+	success: [platformConsole],
+	warn: [platformConsole],
+	error: [platformConsole],
+	fatal: [platformConsole],
 })
 ```
 
-```js
-// index.js
-import log from './myLogger';
+The `createLogger` function takes a single object argument. The keys of the object are the names of your levels, and the value for each level is the list of transports to use for the level. This is a pretty boring logger, since we're still just using the default `platformConsole` transport; let's look at transports in more detail now.
 
-log.info('Custom logger, engage!');
+## Transports
+
+A *transport* is really just a function that handles the arguments you passed to the level. It takes the arguments and the level and does something with them - displays them in the console, sends a message to your favorite chat app, reports data to a third-party service, whatever you want.
+
+You can write your own transports very easily. Here's a very basic example:
+
+```js
+import {createLogger} from 'another-logger';
+
+function myTransport (args, level) {
+	console.log(`${level}:`, ...args);
+}
+
+const log = createLogger({
+	myLevel: [myTransport],
+});
+
+log.myLevel('Hello there!');
+//> myLevel: Hello there!
 ```
 
-## Basic configuration
-
-Logger options are split up into two major parts:
-
-- `transports` defines all the different methods of displaying log messages. By default, `another-logger` registers a transport that puts log messages in the console, just like `console.log`. However, you can define additional transports that do almost anything with your messages - for example, sending messages in chat apps, or integrating with third-party error reporting services.
-- `levels` controls the types of log messages you can use. We mentioned the six default levels before - `debug`, `info`, `success`, `warn`, `error`, and `fatal`. This key is also used to set which transports to send each type of message to.
-
-Let's break down the configuration of the default logger we used before. It might look scary and big at first, but don't panic!
+The `platformTransport` we used in the example above is a simple transport that logs to the console. It works slightly differently depending on whether you're working in a browser environment or in Node.js, but either way, it takes each message and gives the message a color depending on its level. In a browser, you can customize those colors by using the `createBrowserConsoleTransport()` function, which will return a new transport function that color-codes your levels however you like.
 
 ```js
-export const defaultLogger = createLogger({
-	levels: {
-		debug: true,
-		info: true,
-		log: true,
-		success: true,
-		warn: true,
-		error: true,
-		fatal: true,
+import {createLogger, createBrowserConsoleTransport} from 'another-logger';
+
+const myConsoleTransport = createBrowserConsoleTransport({
+	levelColors: {
+		foo: 0x0000FF,
+		bar: 0x00FF00,
 	},
-	transports: {
-		console: new NodeConsoleTransport({
-			levelStyles: {
-				debug: 'cyan',
-				info: 'blue',
-				success: 'green',
-				warn: 'yellow',
-				error: 'red',
-				fatal: 'magenta',
-			}
+});
+
+const log = createLogger({
+	foo: [myConsoleTransport],
+	bar: [myConsoleTransport],
+});
+
+log.foo('hello!'); // "foo" will be blue
+log.bar('goodbye!'); // "bar" will be green
+```
+
+In Node.js, you can use `createNodeConsoleTransport` to create a custom transport that allows you to color-code levels via terminal styles in much the same way. See the [documentation](TODO) for more details.
+
+## Writing Custom Transports
+
+The library comes with these basic console transports for Node and the browser, but you can do much more than that. For example, let's say you want to write a transport that sends your message to a chat app by sending an HTTP request. It might look something like this:
+
+```js
+import fetch from 'node-fetch';
+
+export function createChatAppTransport(options) {
+	return (args, level) => {
+		// Arguments to the log function are provided as-is
+		let message = args.join(' ');
+		fetch('https://my.chat.app/send-message', {
+			method: 'POST',
+			body: message,
 		})
 	}
-});
+}
 ```
 
-The `levels` object in the default config is pretty simple; it just lists the name of all the levels we want to be able to use. Setting each level to `true` means that it gets sent to all transports, but we'll show how you can change this in the next example.
+This is a very simplistic example, but it shows you the kind of stuff you can do with custom transports. It also highlights something important - transports receive the arguments you pass to the log function directly, without formatting. This means that if you do `log.info(42, {a: 1, b: 2})`, then your transport will get `args` of `[42, {a: 1, b: 2}]` - the exact object references are passed directly. You need to format the arguments yourself, and **make sure your custom transports don't accidentally modify objects you pass in!**
 
-The `transports` section is more interesting, containing a `NodeConsoleTransport` called `console`. As you might expect, `NodeConsoleTransport` is a transport built into the library that sends log messages to the console for Node.js projects - this is the bit that's responsible for making sure your log messages get sent somewhere! This particular type of transport takes a `levelStyles` option that lets us customize the color of each of our levels, but keep in mind that different transports can take different options depending on what they do.
+## More stuff
 
-Note that the levels defined in the `levels` section are nothing more than names. Levels do not have any inherent presentation or semantics; those concerns are the responsibility of transports.
-
----
-
-Now let's take a look at a configuration with a more exciting `levels` section:
-
-# TODO: finish out this section once I revise the way level->transport configuration works
+there is more that this file should talk about probably
