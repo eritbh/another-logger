@@ -2,6 +2,7 @@ export { browserConsole } from './index.browser.mjs';
 import { createLogger } from './Logger.mjs';
 export { createLogger } from './Logger.mjs';
 import { createNodeConsoleTransport } from './transports/nodeConsoleTransport.mjs';
+export { createNodeConsoleTransport } from './transports/nodeConsoleTransport.mjs';
 export { createBrowserConsoleTransport } from './transports/browserConsoleTransport.mjs';
 
 /**

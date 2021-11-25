@@ -1,4 +1,6 @@
 export * from './index.browser';
+import { createNodeConsoleTransport } from './transports/nodeConsoleTransport';
+export { createNodeConsoleTransport };
 /**
  * A transport that sends messages to the Node.js console, with level styles set
  * for six levels: "debug", "info", "success", "warn", "error", and "fatal".

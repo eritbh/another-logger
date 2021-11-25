@@ -44,6 +44,7 @@ const defaultLogger = Logger.createLogger({
 
 exports.browserConsole = index_browser.browserConsole;
 exports.createLogger = Logger.createLogger;
+exports.createNodeConsoleTransport = nodeConsoleTransport.createNodeConsoleTransport;
 exports.createBrowserConsoleTransport = browserConsoleTransport.createBrowserConsoleTransport;
 exports.defaultLogger = defaultLogger;
 exports.nodeConsole = nodeConsole;
