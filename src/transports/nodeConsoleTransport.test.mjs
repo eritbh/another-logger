@@ -49,5 +49,5 @@ test('Timestamp logging', t => {
 
 	t.assert(consoleSpy.called);
 	let output = consoleSpy.calls[0][0];
-	t.assert(output.match(/^\d\d:\d\d:\d\d foo something creative$/));
+	t.regex(output, /^\d\d:\d\d:\d\d foo something creative$/);
 });
