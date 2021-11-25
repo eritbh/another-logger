@@ -4,7 +4,7 @@ import ansiColors from 'ansi-colors';
 
 import {
 	nodeConsole,
-} from '../../dist/transports/nodeConsoleTransport.mjs';
+} from '../../dist/transports/nodeConsole.mjs';
 
 test('Basic unstyled output of many types of values', t => {
 	const consoleSpy = spyOn(console, 'log', () => undefined);

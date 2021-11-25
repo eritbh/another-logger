@@ -3,7 +3,7 @@ import {spyOn} from 'nanospy';
 
 import {
 	browserConsole,
-} from '../../dist/transports/browserConsoleTransport.mjs';
+} from '../../dist/transports/browserConsole.mjs';
 
 test('Output values are passed through directly to console.log()', t => {
 	const consoleSpy = spyOn(console, 'log', () => undefined);
@@ -51,6 +51,6 @@ test('Label overrides level name', t => {
 	transport(['hello'], 'foo', {});
 
 	t.assert(consoleSpy.called);
-	t.regex(consoleSpy.calls[0][0], /something custom/);
+	t.regex(consoleSpy.calls[0][0], /bar/);
 	t.notRegex(consoleSpy.calls[0][0], /foo/);
 })
