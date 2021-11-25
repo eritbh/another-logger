@@ -2,6 +2,7 @@ export * from './index.browser';
 
 import { createLogger } from './Logger';
 import { createNodeConsoleTransport } from './transports/nodeConsoleTransport';
+export { createNodeConsoleTransport };
 
 /**
  * A transport that sends messages to the Node.js console, with level styles set
