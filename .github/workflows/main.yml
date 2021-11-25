@@ -26,6 +26,8 @@ jobs:
 
     - run: npm run build
 
+    - run: npm run test
+
     - name: Push built code to Github builds branch
       env:
         DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
