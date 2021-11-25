@@ -1,6 +1,6 @@
 {
   "name": "another-logger",
-  "version": "4.0.0-pre4",
+  "version": "4.0.0-pre5",
   "description": "Lightweight logging for Node.js and the browser",
   "repository": "https://github.com/eritbh/another-logger",
   "author": "eritbh <erin20913@gmail.com>",
