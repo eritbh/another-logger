@@ -1,0 +1,48 @@
+'use strict';
+
+Object.defineProperty(exports, '__esModule', { value: true });
+
+var Logger = require('./Logger.cjs');
+var browserConsoleTransport = require('./transports/browserConsoleTransport.cjs');
+
+/**
+ * A transport that sends messages to the browser console, with level colors set
+ * for six levels: "debug", "info", "success", "warn", "error", and "fatal".
+ */
+const browserConsole = browserConsoleTransport.createBrowserConsoleTransport({
+    levelColors: {
+        debug: 0x11A8CD,
+        info: 0x2472C8,
+        success: 0x0DBC79,
+        warn: 0xE5E510,
+        error: 0xCD3131,
+        fatal: 0xBC3FBC,
+    },
+});
+/**
+ * An appropriate console transport for the current platform. When running in
+ * Node, it will be nodeConsole; when running in a browser, it will be
+ * browserConsole. In either case, level styles/colors will be set for six
+ * levels: "debug", "info", "success", "warn", "error", and "fatal".
+ */
+const platformConsole = browserConsole;
+/**
+ * A default logger with six levels ("debug", "info", "success", "warn",
+ * "error", and "fatal") and a single transport that logs messages to the
+ * console.
+ */
+const defaultLogger = Logger.createLogger({
+    debug: platformConsole,
+    info: platformConsole,
+    success: platformConsole,
+    warn: platformConsole,
+    error: platformConsole,
+    fatal: platformConsole,
+});
+
+exports.createLogger = Logger.createLogger;
+exports.createBrowserConsoleTransport = browserConsoleTransport.createBrowserConsoleTransport;
+exports.browserConsole = browserConsole;
+exports.defaultLogger = defaultLogger;
+exports.platformConsole = platformConsole;
+//# sourceMappingURL=index.browser.cjs.map
