@@ -1,0 +1,37 @@
+{
+  "name": "another-logger",
+  "version": "4.0.0-pre5",
+  "description": "Lightweight logging for Node.js and the browser",
+  "repository": "https://github.com/eritbh/another-logger",
+  "author": "eritbh <erin20913@gmail.com>",
+  "license": "MIT",
+  "main": "dist/index.node.cjs",
+  "module": "dist/index.node.mjs",
+  "browser": {
+    "./dist/index.node.mjs": "./dist/index.browser.mjs",
+    "./dist/index.node.cjs": "./dist/index.browser.cjs",
+    "./dist/index.node.d.ts": "./dist/index.browser.d.ts"
+  },
+  "files": [
+    "dist/**/*"
+  ],
+  "scripts": {
+    "build": "rollup -c rollup.config.js",
+    "test": "ava",
+    "prepublishOnly": "npm-run-all build test"
+  },
+  "optionalDependencies": {
+    "ansi-colors": "^4.1.1"
+  },
+  "devDependencies": {
+    "@rollup/plugin-typescript": "^8.2.1",
+    "@tsconfig/node14": "^1.0.1",
+    "@types/node": "^15.12.3",
+    "ava": "^4.0.0-rc.1",
+    "nanospy": "^0.3.1",
+    "npm-run-all": "^4.1.5",
+    "rollup": "^2.51.2",
+    "tslib": "^2.3.0",
+    "typescript": "^4.1.2"
+  }
+}
