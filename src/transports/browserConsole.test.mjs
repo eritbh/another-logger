@@ -2,14 +2,12 @@ import test from 'ava';
 import {spyOn} from 'nanospy';
 
 import {
-	createBrowserConsoleTransport,
+	browserConsole,
 } from '../../dist/transports/browserConsoleTransport.mjs';
 
 test('Output values are passed through directly to console.log()', t => {
 	const consoleSpy = spyOn(console, 'log', () => undefined);
-	let transport = createBrowserConsoleTransport({
-		formatOptions: {colors: false},
-	});
+	let transport = browserConsole();
 	let obj = {a: 1, b: 2};
 	let arr = [1, 2, 3];
 
@@ -32,11 +30,7 @@ test('Output values are passed through directly to console.log()', t => {
 
 test('Level text and styling CSS', t => {
 	const consoleSpy = spyOn(console, 'log', () => undefined);
-	let transport = createBrowserConsoleTransport({
-		levelColors: {
-			foo: 0x0094FF,
-		},
-	});
+	let transport = browserConsole(0x0094FF);
 
 	transport(['hello'], 'foo', {});
 
@@ -48,4 +42,15 @@ test('Level text and styling CSS', t => {
 	// 7F added to set the color's alpha to 50%, but the original color is still
 	// present in plain text before it
 	t.regex(consoleSpy.calls[0][2], /#0094FF/i);
+})
+
+test('Label overrides level name', t => {
+	const consoleSpy = spyOn(console, 'log', () => undefined);
+	let transport = browserConsole(0, 'bar');
+
+	transport(['hello'], 'foo', {});
+
+	t.assert(consoleSpy.called);
+	t.regex(consoleSpy.calls[0][0], /something custom/);
+	t.notRegex(consoleSpy.calls[0][0], /foo/);
 })

@@ -1,42 +1,18 @@
 export * from './index.browser';
+export * from './transports/nodeConsole';
 
 import { createLogger } from './Logger';
-import { createNodeConsoleTransport } from './transports/nodeConsoleTransport';
-export { createNodeConsoleTransport };
-
-/**
- * A transport that sends messages to the Node.js console, with level styles set
- * for six levels: "debug", "info", "success", "warn", "error", and "fatal".
- */
-export const nodeConsole = createNodeConsoleTransport({
-	levelStyles: {
-		debug: 'cyan',
-		info: 'blue',
-		success: 'green',
-		warn: 'yellow',
-		error: 'red',
-		fatal: 'magenta',
-	},
-})
-
-/**
- * An appropriate console transport for the current platform. When running in
- * Node, it will be nodeConsole; when running in a browser, it will be
- * browserConsole. In either case, level styles/colors will be set for six
- * levels: "debug", "info", "success", "warn", "error", and "fatal".
- */
-export const platformConsole = nodeConsole;
+import { nodeConsole } from './transports/nodeConsole';
 
 /**
  * A default logger with six levels ("debug", "info", "success", "warn",
- * "error", and "fatal") and a single transport that logs messages to the
- * console.
+ * "error", and "fatal") that all log to the console with different colors.
  */
 export const defaultLogger = createLogger({
-	debug: platformConsole,
-	info: platformConsole,
-	success: platformConsole,
-	warn: platformConsole,
-	error: platformConsole,
-	fatal: platformConsole,
+	debug: nodeConsole('cyan'),
+	info: nodeConsole('blue'),
+	success: nodeConsole('green'),
+	warn: nodeConsole('yellow'),
+	error: nodeConsole('red'),
+	fatal: nodeConsole('magenta'),
 });
